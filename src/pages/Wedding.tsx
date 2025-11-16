@@ -6,17 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Heart, Mountain, LogOut, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { TruckArtBorder } from "@/components/TruckArtBorder";
-import { AnimatedTruck } from "@/components/AnimatedTruck";
-import { FloatingFlowers } from "@/components/FloatingFlowers";
-import { SpinningPeacock } from "@/components/SpinningPeacock";
 
 const Wedding = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [guestName, setGuestName] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState(false);
-  const [showTruck, setShowTruck] = useState(false);
   const navigate = useNavigate();
   const totalPages = 6;
 
@@ -75,28 +70,18 @@ const Wedding = () => {
   const handleScroll = () => {
     if (!scrollRef.current) return;
     const newPage = Math.round(scrollRef.current.scrollLeft / window.innerWidth);
-    if (newPage !== currentPage) {
-      setShowTruck(true);
-      setTimeout(() => setShowTruck(false), 8000);
-    }
     setCurrentPage(newPage);
   };
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
-      {/* Floating flowers animation */}
-      <FloatingFlowers count={10} />
-      
-      {/* Animated truck on page transitions */}
-      {showTruck && <AnimatedTruck />}
-      
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         {isAdmin && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate('/admin')}
-            className="bg-card/80 backdrop-blur-sm hover:bg-card border-2 border-truck-pink"
+            className="bg-white/90 backdrop-blur-sm hover:bg-white border border-watercolor-purple/20 text-watercolor-purple"
           >
             <Settings className="w-4 h-4 mr-2" />
             Admin
@@ -106,7 +91,7 @@ const Wedding = () => {
           variant="ghost"
           size="sm"
           onClick={handleLogout}
-          className="bg-card/80 backdrop-blur-sm hover:bg-card border-2 border-truck-blue"
+          className="bg-white/90 backdrop-blur-sm hover:bg-white border border-watercolor-magenta/20 text-watercolor-magenta"
         >
           <LogOut className="w-4 h-4 mr-2" />
           Exit
@@ -119,45 +104,37 @@ const Wedding = () => {
         className="flex overflow-x-scroll snap-x hide-scrollbar h-full"
       >
         {/* Page 1: Welcome */}
-        <WeddingPage background="bg-gradient-to-br from-truck-yellow via-background to-truck-pink">
-          <TruckArtBorder>
-            <div className="space-y-8 relative">
-              <div className="absolute top-0 right-0">
-                <SpinningPeacock size={100} />
+        <WeddingPage background="bg-gradient-to-br from-watercolor-lavender/30 via-background to-watercolor-rose/20">
+          <div className="space-y-8 animate-fade-in">
+            <Heart className="w-16 h-16 mx-auto text-watercolor-magenta opacity-80" />
+            <h1 className="text-6xl md:text-7xl font-serif font-bold text-watercolor-magenta leading-tight">
+              {guestName ? `Welcome, ${guestName}!` : "You're Invited"}
+            </h1>
+            <p className="text-xl md:text-2xl text-muted-foreground font-light max-w-2xl mx-auto">
+              Join us for a celebration of love in the heart of Pakistan
+            </p>
+            <div className="space-y-4 pt-8">
+              <div className="text-lg text-foreground">
+                <p className="font-semibold text-2xl text-watercolor-purple mb-2">March 25 - 29, 2025</p>
+                <p className="text-muted-foreground">Optional Week-Long Trek: March 29 - April 5</p>
               </div>
-              <Heart className="w-16 h-16 mx-auto text-truck-pink animate-pulse" />
-              <h1 className="text-6xl md:text-7xl font-serif font-bold text-primary leading-tight">
-                {guestName ? `Welcome, ${guestName}!` : "You're Invited"}
-              </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground font-light max-w-2xl mx-auto">
-                Join us for a celebration of love in the heart of Pakistan
-              </p>
-              <div className="space-y-4 pt-8">
-                <div className="text-lg text-foreground">
-                  <p className="font-semibold text-2xl text-primary mb-2">March 25 - 29, 2025</p>
-                  <p className="text-muted-foreground">Optional Week-Long Trek: March 29 - April 5</p>
-                </div>
-                <div className="pt-6">
-                  <Button
-                    onClick={() => navigate('/rsvp')}
-                    size="lg"
-                    className="bg-gradient-to-r from-truck-pink to-truck-purple hover:from-truck-purple hover:to-truck-pink text-white px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all border-2 border-truck-yellow"
-                  >
-                    RSVP by December 15th
-                  </Button>
-                </div>
+              <div className="pt-6">
+                <Button
+                  onClick={() => navigate('/rsvp')}
+                  size="lg"
+                  className="bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-500"
+                >
+                  RSVP by December 15th
+                </Button>
               </div>
             </div>
-          </TruckArtBorder>
+          </div>
         </WeddingPage>
 
         {/* Page 2: Dholki - March 25 */}
-        <WeddingPage background="bg-gradient-to-br from-gray-900 via-black to-gray-800">
-          <div className="space-y-8 relative">
-            <div className="absolute -top-10 left-10 animate-flower-bloom">
-              <SpinningPeacock size={60} className="opacity-50" />
-            </div>
-            <h2 className="text-5xl font-serif font-bold text-transparent bg-gradient-to-r from-cyan-300 via-yellow-300 to-pink-300 bg-clip-text mb-12 border-b-4 border-truck-pink pb-4 drop-shadow-[0_0_30px_rgba(255,20,147,0.8)]">
+        <WeddingPage background="bg-gradient-to-br from-watercolor-purple/20 to-background">
+          <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <h2 className="text-5xl font-serif font-bold text-watercolor-purple mb-12">
               Arrival Day
             </h2>
             <EventCard
@@ -172,12 +149,9 @@ const Wedding = () => {
         </WeddingPage>
 
         {/* Page 3: Barat - March 26 */}
-        <WeddingPage background="bg-gradient-to-br from-black via-gray-900 to-black">
-          <div className="space-y-8 relative">
-            <div className="absolute -top-10 right-10 animate-flower-bloom" style={{ animationDelay: '0.3s' }}>
-              <SpinningPeacock size={70} className="opacity-60" />
-            </div>
-            <h2 className="text-5xl font-serif font-bold text-transparent bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 bg-clip-text mb-12 border-b-4 border-truck-blue pb-4 drop-shadow-[0_0_30px_rgba(0,191,255,0.8)]">
+        <WeddingPage background="bg-gradient-to-br from-watercolor-rose/20 to-background">
+          <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <h2 className="text-5xl font-serif font-bold text-watercolor-magenta mb-12">
               The Main Event
             </h2>
             <EventCard
@@ -192,9 +166,9 @@ const Wedding = () => {
         </WeddingPage>
 
         {/* Page 4: Village Reception - March 27 */}
-        <WeddingPage background="bg-gradient-to-br from-gray-800 via-black to-gray-900">
-          <div className="space-y-8 relative">
-            <h2 className="text-5xl font-serif font-bold text-transparent bg-gradient-to-r from-yellow-300 via-green-300 to-cyan-300 bg-clip-text mb-12 drop-shadow-[0_0_30px_rgba(255,255,0,0.8)]">
+        <WeddingPage background="bg-gradient-to-br from-watercolor-orange/20 to-background">
+          <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <h2 className="text-5xl font-serif font-bold text-watercolor-orange mb-12">
               Double Celebration
             </h2>
             <div className="grid gap-6 max-w-3xl mx-auto">
@@ -219,9 +193,9 @@ const Wedding = () => {
         </WeddingPage>
 
         {/* Page 5: Formal Reception - March 28 */}
-        <WeddingPage background="bg-gradient-to-br from-black via-purple-950 to-black">
-          <div className="space-y-8 relative">
-            <h2 className="text-5xl font-serif font-bold text-transparent bg-gradient-to-r from-purple-300 via-pink-300 to-red-300 bg-clip-text mb-12 drop-shadow-[0_0_30px_rgba(138,43,226,0.8)]">
+        <WeddingPage background="bg-gradient-to-br from-watercolor-gold/20 to-background">
+          <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <h2 className="text-5xl font-serif font-bold text-watercolor-gold mb-12">
               Grand Finale
             </h2>
             <EventCard
@@ -236,10 +210,10 @@ const Wedding = () => {
         </WeddingPage>
 
         {/* Page 6: Optional Trek */}
-        <WeddingPage background="bg-gradient-to-br from-green-950 via-black to-blue-950">
-          <div className="space-y-8 relative">
-            <Mountain className="w-16 h-16 mx-auto text-cyan-300 drop-shadow-[0_0_20px_rgba(0,255,255,0.8)] animate-float" />
-            <h2 className="text-5xl font-serif font-bold text-transparent bg-gradient-to-r from-green-300 via-cyan-300 to-blue-300 bg-clip-text mb-8 drop-shadow-[0_0_30px_rgba(0,255,127,0.8)]">
+        <WeddingPage background="bg-gradient-to-br from-watercolor-lavender/20 to-background">
+          <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <Mountain className="w-16 h-16 mx-auto text-watercolor-purple opacity-80" />
+            <h2 className="text-5xl font-serif font-bold text-watercolor-purple mb-8">
               Adventure Awaits
             </h2>
             <EventCard
