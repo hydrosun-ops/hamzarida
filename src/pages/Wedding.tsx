@@ -6,12 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Heart, Mountain, LogOut, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { TruckArtBorder } from "@/components/TruckArtBorder";
+import { AnimatedTruck } from "@/components/AnimatedTruck";
+import { FloatingFlowers } from "@/components/FloatingFlowers";
+import { SpinningPeacock } from "@/components/SpinningPeacock";
 
 const Wedding = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [guestName, setGuestName] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showTruck, setShowTruck] = useState(false);
   const navigate = useNavigate();
   const totalPages = 6;
 
@@ -69,19 +74,29 @@ const Wedding = () => {
 
   const handleScroll = () => {
     if (!scrollRef.current) return;
-    const page = Math.round(scrollRef.current.scrollLeft / window.innerWidth);
-    setCurrentPage(page);
+    const newPage = Math.round(scrollRef.current.scrollLeft / window.innerWidth);
+    if (newPage !== currentPage) {
+      setShowTruck(true);
+      setTimeout(() => setShowTruck(false), 8000);
+    }
+    setCurrentPage(newPage);
   };
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
+      {/* Floating flowers animation */}
+      <FloatingFlowers count={10} />
+      
+      {/* Animated truck on page transitions */}
+      {showTruck && <AnimatedTruck />}
+      
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         {isAdmin && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate('/admin')}
-            className="bg-card/80 backdrop-blur-sm hover:bg-card"
+            className="bg-card/80 backdrop-blur-sm hover:bg-card border-2 border-truck-pink"
           >
             <Settings className="w-4 h-4 mr-2" />
             Admin
@@ -91,7 +106,7 @@ const Wedding = () => {
           variant="ghost"
           size="sm"
           onClick={handleLogout}
-          className="bg-card/80 backdrop-blur-sm hover:bg-card"
+          className="bg-card/80 backdrop-blur-sm hover:bg-card border-2 border-truck-blue"
         >
           <LogOut className="w-4 h-4 mr-2" />
           Exit
@@ -104,37 +119,45 @@ const Wedding = () => {
         className="flex overflow-x-scroll snap-x hide-scrollbar h-full"
       >
         {/* Page 1: Welcome */}
-        <WeddingPage background="bg-gradient-to-br from-wedding-cream via-background to-wedding-cream">
-          <div className="space-y-8">
-            <Heart className="w-16 h-16 mx-auto text-secondary animate-pulse" />
-            <h1 className="text-6xl md:text-7xl font-serif font-bold text-primary leading-tight">
-              {guestName ? `Welcome, ${guestName}!` : "You're Invited"}
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground font-light max-w-2xl mx-auto">
-              Join us for a celebration of love in the heart of Pakistan
-            </p>
-            <div className="space-y-4 pt-8">
-              <div className="text-lg text-foreground">
-                <p className="font-semibold text-2xl text-primary mb-2">March 25 - 29, 2025</p>
-                <p className="text-muted-foreground">Optional Week-Long Trek: March 29 - April 5</p>
+        <WeddingPage background="bg-gradient-to-br from-truck-yellow via-background to-truck-pink">
+          <TruckArtBorder>
+            <div className="space-y-8 relative">
+              <div className="absolute top-0 right-0">
+                <SpinningPeacock size={100} />
               </div>
-              <div className="pt-6">
-                <Button
-                  onClick={() => navigate('/rsvp')}
-                  size="lg"
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all"
-                >
-                  RSVP by December 15th
-                </Button>
+              <Heart className="w-16 h-16 mx-auto text-truck-pink animate-pulse" />
+              <h1 className="text-6xl md:text-7xl font-serif font-bold text-primary leading-tight">
+                {guestName ? `Welcome, ${guestName}!` : "You're Invited"}
+              </h1>
+              <p className="text-xl md:text-2xl text-muted-foreground font-light max-w-2xl mx-auto">
+                Join us for a celebration of love in the heart of Pakistan
+              </p>
+              <div className="space-y-4 pt-8">
+                <div className="text-lg text-foreground">
+                  <p className="font-semibold text-2xl text-primary mb-2">March 25 - 29, 2025</p>
+                  <p className="text-muted-foreground">Optional Week-Long Trek: March 29 - April 5</p>
+                </div>
+                <div className="pt-6">
+                  <Button
+                    onClick={() => navigate('/rsvp')}
+                    size="lg"
+                    className="bg-gradient-to-r from-truck-pink to-truck-purple hover:from-truck-purple hover:to-truck-pink text-white px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all border-2 border-truck-yellow"
+                  >
+                    RSVP by December 15th
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
+          </TruckArtBorder>
         </WeddingPage>
 
         {/* Page 2: Dholki - March 25 */}
-        <WeddingPage>
-          <div className="space-y-8">
-            <h2 className="text-5xl font-serif font-bold text-primary mb-12">Arrival Day</h2>
+        <WeddingPage background="bg-gradient-to-br from-truck-blue/20 to-background">
+          <div className="space-y-8 relative">
+            <div className="absolute -top-10 left-10 animate-flower-bloom">
+              <SpinningPeacock size={60} className="opacity-50" />
+            </div>
+            <h2 className="text-5xl font-serif font-bold text-primary mb-12 border-b-4 border-truck-pink pb-4">Arrival Day</h2>
             <EventCard
               icon="🥁"
               date="March 25, 2025"
@@ -147,9 +170,12 @@ const Wedding = () => {
         </WeddingPage>
 
         {/* Page 3: Barat - March 26 */}
-        <WeddingPage background="bg-gradient-to-br from-wedding-emerald/5 to-background">
-          <div className="space-y-8">
-            <h2 className="text-5xl font-serif font-bold text-primary mb-12">The Main Event</h2>
+        <WeddingPage background="bg-gradient-to-br from-truck-green/20 to-background">
+          <div className="space-y-8 relative">
+            <div className="absolute -top-10 right-10 animate-flower-bloom" style={{ animationDelay: '0.3s' }}>
+              <SpinningPeacock size={70} className="opacity-60" />
+            </div>
+            <h2 className="text-5xl font-serif font-bold text-primary mb-12 border-b-4 border-truck-blue pb-4">The Main Event</h2>
             <EventCard
               icon="💍"
               date="March 26, 2025"

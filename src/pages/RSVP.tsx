@@ -9,6 +9,9 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Heart, ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { TruckArtBorder } from "@/components/TruckArtBorder";
+import { FloatingFlowers } from "@/components/FloatingFlowers";
+import { SpinningPeacock } from "@/components/SpinningPeacock";
 
 interface FamilyMember {
   id?: string;
@@ -150,28 +153,30 @@ const RSVP = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-wedding-cream via-background to-wedding-cream flex items-center justify-center p-4">
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-wedding-emerald rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-wedding-ruby rounded-full blur-3xl" />
+    <div className="min-h-screen bg-gradient-to-br from-truck-yellow via-truck-pink to-truck-blue flex items-center justify-center p-4 relative overflow-hidden">
+      <FloatingFlowers count={6} />
+      
+      <div className="absolute top-10 right-10 opacity-20">
+        <SpinningPeacock size={120} />
       </div>
 
-      <Card className="w-full max-w-2xl relative z-10 bg-card/80 backdrop-blur-sm border-border/50">
-        <CardHeader className="text-center space-y-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/wedding')}
-            className="absolute left-4 top-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          <Heart className="w-12 h-12 mx-auto text-secondary" />
-          <CardTitle className="text-4xl font-serif">RSVP</CardTitle>
-          <CardDescription>
-            Please respond by December 15th, 2024
-          </CardDescription>
-        </CardHeader>
+      <Card className="w-full max-w-2xl relative z-10 bg-card/95 backdrop-blur-sm border-4 border-truck-green shadow-2xl">
+        <TruckArtBorder>
+          <CardHeader className="text-center space-y-4">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/wedding')}
+              className="absolute left-4 top-4 border-2 border-truck-pink hover:bg-truck-pink/20"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <Heart className="w-12 h-12 mx-auto text-truck-pink animate-pulse" />
+            <CardTitle className="text-4xl font-serif bg-gradient-to-r from-truck-pink to-truck-purple bg-clip-text text-transparent">RSVP</CardTitle>
+            <CardDescription className="text-base">
+              Please respond by December 15th, 2024
+            </CardDescription>
+          </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Primary Guest Info */}
@@ -288,7 +293,7 @@ const RSVP = () => {
             <div className="pt-4">
               <Button
                 type="submit"
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-lg"
+                className="w-full bg-gradient-to-r from-truck-pink via-truck-purple to-truck-blue hover:from-truck-blue hover:to-truck-pink text-white py-6 text-lg border-2 border-truck-yellow shadow-lg"
                 disabled={loading}
               >
                 {loading ? "Submitting..." : existingRsvp ? "Update RSVP" : "Submit RSVP"}
@@ -296,6 +301,7 @@ const RSVP = () => {
             </div>
           </form>
         </CardContent>
+        </TruckArtBorder>
       </Card>
     </div>
   );

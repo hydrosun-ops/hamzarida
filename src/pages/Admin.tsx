@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Users, ArrowLeft } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { FloatingFlowers } from "@/components/FloatingFlowers";
+import { SpinningPeacock } from "@/components/SpinningPeacock";
 
 interface Guest {
   id: string;
@@ -106,23 +108,29 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-wedding-cream via-background to-wedding-cream p-4">
-      <div className="max-w-6xl mx-auto pt-8">
+    <div className="min-h-screen bg-gradient-to-br from-truck-yellow via-truck-blue to-truck-green p-4 relative overflow-hidden">
+      <FloatingFlowers count={8} />
+      
+      <div className="absolute top-20 left-20 opacity-10">
+        <SpinningPeacock size={150} />
+      </div>
+      
+      <div className="max-w-6xl mx-auto pt-8 relative z-10">
         <Button
           variant="ghost"
           onClick={() => navigate("/wedding")}
-          className="mb-6"
+          className="mb-6 border-2 border-truck-pink hover:bg-truck-pink/20 bg-card/80 backdrop-blur-sm"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Wedding
         </Button>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <Card className="bg-card/80 backdrop-blur-sm border-border/50">
+          <Card className="bg-card/95 backdrop-blur-sm border-4 border-truck-pink shadow-2xl">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Users className="w-6 h-6 text-primary" />
-                <CardTitle className="text-2xl font-serif">Add Guest</CardTitle>
+                <Users className="w-6 h-6 text-truck-purple" />
+                <CardTitle className="text-2xl font-serif bg-gradient-to-r from-truck-pink to-truck-blue bg-clip-text text-transparent">Add Guest</CardTitle>
               </div>
               <CardDescription>
                 Add a new guest to the wedding invitation list
@@ -164,7 +172,7 @@ const Admin = () => {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full bg-gradient-to-r from-truck-pink to-truck-purple hover:from-truck-purple hover:to-truck-pink text-white border-2 border-truck-yellow"
                   disabled={loading}
                 >
                   {loading ? "Adding..." : "Add Guest"}
@@ -173,9 +181,9 @@ const Admin = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-card/80 backdrop-blur-sm border-border/50">
+          <Card className="bg-card/95 backdrop-blur-sm border-4 border-truck-blue shadow-2xl">
             <CardHeader>
-              <CardTitle className="text-2xl font-serif">Guest List</CardTitle>
+              <CardTitle className="text-2xl font-serif bg-gradient-to-r from-truck-blue to-truck-green bg-clip-text text-transparent">Guest List</CardTitle>
               <CardDescription>
                 {guests.length} guest{guests.length !== 1 ? 's' : ''} invited
               </CardDescription>
