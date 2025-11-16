@@ -10,6 +10,7 @@ import { Users, ArrowLeft, Sparkles } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
 import { Checkbox } from "@/components/ui/checkbox";
+import { parsePhoneNumber, formatIncompletePhoneNumber } from 'libphonenumber-js';
 
 interface Guest {
   id: string;
@@ -26,11 +27,10 @@ const Admin = () => {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [eventInvitations, setEventInvitations] = useState({
-    welcome: true,
-    mehndi: true,
-    haldi: true,
-    nikah: true,
-    reception: true,
+    mehndi: true, // Dholki Night
+    nikah: true, // Barat Ceremony
+    haldi: true, // Village Reception + DJ Party
+    reception: true, // Formal Reception
     trek: true,
   });
   const navigate = useNavigate();
@@ -86,13 +86,23 @@ const Admin = () => {
     setLoading(true);
 
     try {
-      const cleanPhone = phone.replace(/[\s\-()]/g, '');
+      // Parse and format phone number
+      let formattedPhone = phone;
+      try {
+        const phoneNumber = parsePhoneNumber(phone, 'PK'); // Default to Pakistan
+        if (phoneNumber) {
+          formattedPhone = phoneNumber.formatInternational();
+        }
+      } catch {
+        // If parsing fails, use the input as-is
+        formattedPhone = formatIncompletePhoneNumber(phone);
+      }
       
       const { data: guestData, error: guestError } = await supabase
         .from('guests')
         .insert([{ 
           name, 
-          phone: cleanPhone,
+          phone: formattedPhone,
           email: email || null 
         }])
         .select()
@@ -122,10 +132,9 @@ const Admin = () => {
       setPhone("");
       setEmail("");
       setEventInvitations({
-        welcome: true,
         mehndi: true,
-        haldi: true,
         nikah: true,
+        haldi: true,
         reception: true,
         trek: true,
       });
@@ -194,11 +203,12 @@ const Admin = () => {
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="+1 234 567 8900"
+                    placeholder="+92 300 1234567"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
                   />
+                  <p className="text-xs text-muted-foreground">International format (e.g., +92 300 1234567)</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email (Optional)</Label>
@@ -213,24 +223,82 @@ const Admin = () => {
                 
                 <div className="space-y-3 pt-2">
                   <Label className="text-base">Event Invitations</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {Object.entries(eventInvitations).map(([event, checked]) => (
-                      <div key={event} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={event}
-                          checked={checked}
-                          onCheckedChange={(checked) => 
-                            setEventInvitations(prev => ({ ...prev, [event]: !!checked }))
-                          }
-                        />
-                        <label
-                          htmlFor={event}
-                          className="text-sm font-medium capitalize leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                        >
-                          {event}
-                        </label>
-                      </div>
-                    ))}
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="mehndi"
+                        checked={eventInvitations.mehndi}
+                        onCheckedChange={(checked) => 
+                          setEventInvitations(prev => ({ ...prev, mehndi: !!checked }))
+                        }
+                      />
+                      <label
+                        htmlFor="mehndi"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Dholki Night (March 25) 🥁
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="nikah"
+                        checked={eventInvitations.nikah}
+                        onCheckedChange={(checked) => 
+                          setEventInvitations(prev => ({ ...prev, nikah: !!checked }))
+                        }
+                      />
+                      <label
+                        htmlFor="nikah"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Barat Ceremony (March 26) 💍
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="haldi"
+                        checked={eventInvitations.haldi}
+                        onCheckedChange={(checked) => 
+                          setEventInvitations(prev => ({ ...prev, haldi: !!checked }))
+                        }
+                      />
+                      <label
+                        htmlFor="haldi"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Village Reception + DJ Party (March 27) 🎉
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="reception"
+                        checked={eventInvitations.reception}
+                        onCheckedChange={(checked) => 
+                          setEventInvitations(prev => ({ ...prev, reception: !!checked }))
+                        }
+                      />
+                      <label
+                        htmlFor="reception"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Formal Reception (March 28) ✨
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="trek"
+                        checked={eventInvitations.trek}
+                        onCheckedChange={(checked) => 
+                          setEventInvitations(prev => ({ ...prev, trek: !!checked }))
+                        }
+                      />
+                      <label
+                        htmlFor="trek"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Week-Long Trek (March 29 - April 5) 🏔️
+                      </label>
+                    </div>
                   </div>
                 </div>
                 
