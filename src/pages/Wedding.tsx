@@ -78,6 +78,12 @@ const Wedding = () => {
     <div className="relative w-full h-screen overflow-hidden">
       <WatercolorBackground />
       
+      {/* Left scroll indicator */}
+      <div className={`fixed left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background/80 to-transparent pointer-events-none z-40 transition-opacity duration-300 ${currentPage === 0 ? 'opacity-0' : 'opacity-100'}`} />
+      
+      {/* Right scroll indicator */}
+      <div className={`fixed right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background/80 to-transparent pointer-events-none z-40 transition-opacity duration-300 ${currentPage === totalPages - 1 ? 'opacity-0' : 'opacity-100'}`} />
+      
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         {isAdmin && (
           <Button

@@ -9,25 +9,25 @@ interface NavigationProps {
 
 export const Navigation = ({ currentPage, totalPages, onNavigate }: NavigationProps) => {
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-card/80 backdrop-blur-lg px-6 py-3 rounded-full border border-border/50 shadow-xl">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-card/95 backdrop-blur-lg px-6 py-4 rounded-full border-2 border-primary/30 shadow-2xl animate-fade-in">
       <Button
         variant="ghost"
         size="icon"
         onClick={() => onNavigate('prev')}
         disabled={currentPage === 0}
-        className="rounded-full hover:bg-primary/10"
+        className="rounded-full hover:bg-primary/20 hover:scale-110 transition-all"
       >
-        <ChevronLeft className="w-5 h-5" />
+        <ChevronLeft className="w-6 h-6" />
       </Button>
       
-      <div className="flex gap-2">
+      <div className="flex gap-2.5">
         {Array.from({ length: totalPages }).map((_, index) => (
           <div
             key={index}
-            className={`h-2 rounded-full transition-all duration-300 ${
+            className={`h-2.5 rounded-full transition-all duration-300 ${
               index === currentPage
-                ? 'w-8 bg-primary'
-                : 'w-2 bg-muted-foreground/30'
+                ? 'w-10 bg-primary shadow-lg shadow-primary/50'
+                : 'w-2.5 bg-muted-foreground/40 hover:bg-muted-foreground/60'
             }`}
           />
         ))}
@@ -38,9 +38,9 @@ export const Navigation = ({ currentPage, totalPages, onNavigate }: NavigationPr
         size="icon"
         onClick={() => onNavigate('next')}
         disabled={currentPage === totalPages - 1}
-        className="rounded-full hover:bg-primary/10"
+        className="rounded-full hover:bg-primary/20 hover:scale-110 transition-all"
       >
-        <ChevronRight className="w-5 h-5" />
+        <ChevronRight className="w-6 h-6" />
       </Button>
     </div>
   );
