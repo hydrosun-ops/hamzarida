@@ -14,13 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      family_members: {
+        Row: {
+          created_at: string | null
+          dietary_requirements: string | null
+          guest_id: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          dietary_requirements?: string | null
+          guest_id: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          dietary_requirements?: string | null
+          guest_id?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_members_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guests: {
         Row: {
           created_at: string | null
           email: string | null
           id: string
           name: string
-          phone: string | null
+          phone: string
           user_id: string | null
         }
         Insert: {
@@ -28,7 +60,7 @@ export type Database = {
           email?: string | null
           id?: string
           name: string
-          phone?: string | null
+          phone: string
           user_id?: string | null
         }
         Update: {
@@ -36,7 +68,7 @@ export type Database = {
           email?: string | null
           id?: string
           name?: string
-          phone?: string | null
+          phone?: string
           user_id?: string | null
         }
         Relationships: []
