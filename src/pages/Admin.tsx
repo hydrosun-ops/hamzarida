@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Users, ArrowLeft, Sparkles } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Guest {
   id: string;
@@ -24,6 +25,14 @@ const Admin = () => {
   const [loading, setLoading] = useState(false);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [eventInvitations, setEventInvitations] = useState({
+    welcome: true,
+    mehndi: true,
+    haldi: true,
+    nikah: true,
+    reception: true,
+    trek: true,
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -79,20 +88,47 @@ const Admin = () => {
     try {
       const cleanPhone = phone.replace(/[\s\-()]/g, '');
       
-      const { error } = await supabase
+      const { data: guestData, error: guestError } = await supabase
         .from('guests')
         .insert([{ 
           name, 
           phone: cleanPhone,
           email: email || null 
-        }]);
+        }])
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (guestError) throw guestError;
+
+      // Insert event invitations
+      const invitationsToInsert = Object.entries(eventInvitations)
+        .filter(([_, invited]) => invited)
+        .map(([eventType]) => ({
+          guest_id: guestData.id,
+          event_type: eventType as 'welcome' | 'mehndi' | 'haldi' | 'nikah' | 'reception' | 'trek',
+          invited: true,
+        }));
+
+      if (invitationsToInsert.length > 0) {
+        const { error: inviteError } = await supabase
+          .from('event_invitations')
+          .insert(invitationsToInsert);
+
+        if (inviteError) throw inviteError;
+      }
 
       toast.success(`${name} added successfully!`);
       setName("");
       setPhone("");
       setEmail("");
+      setEventInvitations({
+        welcome: true,
+        mehndi: true,
+        haldi: true,
+        nikah: true,
+        reception: true,
+        trek: true,
+      });
       fetchGuests();
     } catch (error: any) {
       toast.error("Failed to add guest");
@@ -174,6 +210,30 @@ const Admin = () => {
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
+                
+                <div className="space-y-3 pt-2">
+                  <Label className="text-base">Event Invitations</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {Object.entries(eventInvitations).map(([event, checked]) => (
+                      <div key={event} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={event}
+                          checked={checked}
+                          onCheckedChange={(checked) => 
+                            setEventInvitations(prev => ({ ...prev, [event]: !!checked }))
+                          }
+                        />
+                        <label
+                          htmlFor={event}
+                          className="text-sm font-medium capitalize leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          {event}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
                 <Button
                   type="submit"
                   className="w-full bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white"
