@@ -21,17 +21,17 @@ const Wedding = () => {
     return invitedEvents.size === 0 || invitedEvents.has(eventType);
   };
 
-  // Calculate visible pages
-  const visiblePages = [
-    { key: 'welcome', show: true }, // Always show welcome
-    { key: 'welcome', show: isInvitedTo('welcome') }, // Dholki
-    { key: 'nikah', show: isInvitedTo('nikah') }, // Barat
-    { key: 'reception', show: isInvitedTo('reception') }, // Village + DJ
-    { key: 'reception2', show: isInvitedTo('reception') }, // Formal reception
-    { key: 'trek', show: isInvitedTo('trek') }, // Trek
-  ].filter(p => p.show);
+  // Calculate visible pages based on invitations
+  const visiblePageCount = [
+    true, // Welcome - always shown
+    isInvitedTo('mehndi'), // Dholki
+    isInvitedTo('nikah'), // Barat
+    isInvitedTo('haldi'), // Village + DJ
+    isInvitedTo('reception'), // Formal reception
+    isInvitedTo('trek'), // Trek
+  ].filter(Boolean).length;
   
-  const totalPages = visiblePages.length;
+  const totalPages = visiblePageCount;
 
   useEffect(() => {
     // Check if guest is authenticated
@@ -169,7 +169,7 @@ const Wedding = () => {
         </WeddingPage>
 
         {/* Page 2: Dholki - March 25 */}
-        {isInvitedTo('welcome') && (
+        {isInvitedTo('mehndi') && (
           <WeddingPage background="bg-gradient-to-br from-watercolor-purple/20 to-background">
           <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <h2 className="text-5xl font-serif font-bold text-watercolor-purple mb-12">
@@ -207,7 +207,7 @@ const Wedding = () => {
         )}
 
         {/* Page 4: Village Reception - March 27 */}
-        {isInvitedTo('reception') && (
+        {isInvitedTo('haldi') && (
           <WeddingPage background="bg-gradient-to-br from-watercolor-orange/20 to-background">
           <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <h2 className="text-5xl font-serif font-bold text-watercolor-orange mb-12">

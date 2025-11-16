@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Heart } from "lucide-react";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
+import { parsePhoneNumber, formatIncompletePhoneNumber } from 'libphonenumber-js';
 
 const Auth = () => {
   const [phone, setPhone] = useState("");
@@ -19,17 +20,27 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Clean up phone number (remove spaces, dashes, etc)
-      const cleanPhone = phone.replace(/[\s\-()]/g, '');
+      // Parse and normalize phone number for matching
+      let normalizedPhone = phone;
+      try {
+        const phoneNumber = parsePhoneNumber(phone, 'PK'); // Default to Pakistan
+        if (phoneNumber) {
+          normalizedPhone = phoneNumber.formatInternational();
+        }
+      } catch {
+        // If parsing fails, try formatting as incomplete number
+        normalizedPhone = formatIncompletePhoneNumber(phone);
+      }
       
-      // Check if phone exists in guests table
-      const { data: guest, error } = await supabase
+      // Try to find guest with formatted phone or original input
+      const { data: guests, error } = await supabase
         .from('guests')
         .select('id, name, phone')
-        .eq('phone', cleanPhone)
-        .maybeSingle();
+        .or(`phone.eq.${normalizedPhone},phone.eq.${phone.replace(/[\s\-()]/g, '')}`);
 
       if (error) throw error;
+
+      const guest = guests?.[0];
 
       if (!guest) {
         toast.error("Access code not found. Please check your phone number.");
@@ -73,7 +84,7 @@ const Auth = () => {
               <Input
                 id="phone"
                 type="tel"
-                placeholder="+1 234 567 8900"
+                placeholder="+92 300 1234567"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 required
