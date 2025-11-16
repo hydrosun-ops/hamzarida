@@ -8,42 +8,52 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 36 100% 98%;
-    --foreground: 165 45% 12%;
+    --background: 48 100% 97%;
+    --foreground: 340 60% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 165 45% 12%;
+    --card-foreground: 340 60% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 165 45% 12%;
+    --popover-foreground: 340 60% 20%;
 
-    --primary: 165 65% 25%;
-    --primary-foreground: 36 100% 98%;
+    --primary: 330 85% 55%;
+    --primary-foreground: 48 100% 97%;
 
-    --secondary: 350 75% 45%;
-    --secondary-foreground: 36 100% 98%;
+    --secondary: 190 90% 45%;
+    --secondary-foreground: 48 100% 97%;
 
-    --muted: 36 50% 92%;
-    --muted-foreground: 165 25% 40%;
+    --muted: 48 80% 90%;
+    --muted-foreground: 340 30% 45%;
 
-    --accent: 43 100% 65%;
-    --accent-foreground: 165 45% 12%;
+    --accent: 45 100% 55%;
+    --accent-foreground: 340 60% 20%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 36 30% 88%;
-    --input: 36 30% 88%;
-    --ring: 165 65% 25%;
+    --border: 330 60% 85%;
+    --input: 330 40% 92%;
+    --ring: 330 85% 55%;
 
     --radius: 1rem;
 
-    /* Wedding theme colors */
-    --wedding-emerald: 165 65% 25%;
-    --wedding-ruby: 350 75% 45%;
-    --wedding-gold: 43 100% 65%;
-    --wedding-cream: 36 100% 98%;
-    --wedding-sage: 140 20% 50%;
+    /* Pakistani Truck Art Colors */
+    --wedding-emerald: 165 70% 40%;
+    --wedding-ruby: 330 85% 55%;
+    --wedding-gold: 45 100% 55%;
+    --wedding-cream: 48 100% 97%;
+    --wedding-sage: 140 50% 50%;
+    --truck-pink: 340 90% 65%;
+    --truck-blue: 190 90% 45%;
+    --truck-yellow: 52 100% 60%;
+    --truck-green: 145 75% 45%;
+    --truck-purple: 280 70% 50%;
+    --truck-orange: 25 100% 55%;
+    
+    /* Gradients */
+    --gradient-truck: linear-gradient(135deg, hsl(var(--truck-pink)), hsl(var(--truck-yellow)), hsl(var(--truck-blue)));
+    --gradient-floral: linear-gradient(180deg, hsl(var(--truck-purple)), hsl(var(--truck-pink)));
   }
 }
 
