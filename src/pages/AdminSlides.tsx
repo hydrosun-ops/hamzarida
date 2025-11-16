@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowLeft, Upload, Sparkles, Heart } from "lucide-react";
+import { ArrowLeft, Upload, Sparkles, Heart, Image } from "lucide-react";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
 
 interface Slide {
@@ -24,6 +24,8 @@ const AdminSlides = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [editingSlide, setEditingSlide] = useState<Slide | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,6 +71,48 @@ const AdminSlides = () => {
     }
 
     setSlides(data || []);
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || !event.target.files[0] || !editingSlide) return;
+    
+    const file = event.target.files[0];
+    setUploading(true);
+
+    try {
+      // Create a unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${editingSlide.page_number}-${Date.now()}.${fileExt}`;
+      const filePath = fileName;
+
+      // Upload to Supabase Storage
+      const { error: uploadError, data } = await supabase.storage
+        .from('slide-backgrounds')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('slide-backgrounds')
+        .getPublicUrl(filePath);
+
+      // Update the editing slide with the new image URL
+      setEditingSlide({
+        ...editingSlide,
+        background_image: publicUrl
+      });
+
+      toast.success("Image uploaded successfully!");
+    } catch (error: any) {
+      toast.error("Failed to upload image");
+      console.error(error);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSaveSlide = async () => {
@@ -217,17 +261,42 @@ const AdminSlides = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="background" className="font-display text-watercolor-purple flex items-center gap-2">
-                    <Upload className="w-4 h-4" />
-                    Background Image URL
+                  <Label className="font-display text-watercolor-purple flex items-center gap-2">
+                    <Image className="w-4 h-4" />
+                    Background Image
                   </Label>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="bg-gradient-to-r from-watercolor-purple to-watercolor-magenta hover:from-watercolor-magenta hover:to-watercolor-purple text-white"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {uploading ? "Uploading..." : "Upload Image"}
+                    </Button>
+                    
+                    <Input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </div>
+
+                  <div className="text-xs text-muted-foreground">
+                    Or paste an image URL below:
+                  </div>
+                  
                   <Input
-                    id="background"
                     value={editingSlide.background_image || ''}
                     onChange={(e) => setEditingSlide({...editingSlide, background_image: e.target.value})}
                     placeholder="https://example.com/image.jpg"
                     className="border-2 border-watercolor-purple/20"
                   />
+                  
                   {editingSlide.background_image && (
                     <div className="mt-2 rounded-lg overflow-hidden h-48 border-2 border-watercolor-purple/20">
                       <img 
