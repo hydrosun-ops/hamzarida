@@ -3,7 +3,7 @@ import { WeddingPage } from "@/components/WeddingPage";
 import { EventCard } from "@/components/EventCard";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
-import { Heart, Mountain, LogOut } from "lucide-react";
+import { Heart, Mountain, LogOut, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -11,6 +11,7 @@ const Wedding = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [guestName, setGuestName] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const totalPages = 6;
 
@@ -27,6 +28,22 @@ const Wedding = () => {
     if (name) {
       setGuestName(name);
     }
+
+    // Check if user is admin
+    const checkAdminRole = async () => {
+      if (guestId) {
+        const { data } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('guest_id', guestId)
+          .eq('role', 'admin')
+          .maybeSingle();
+        
+        setIsAdmin(!!data);
+      }
+    };
+
+    checkAdminRole();
   }, [navigate]);
 
   const handleLogout = () => {
@@ -58,15 +75,28 @@ const Wedding = () => {
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleLogout}
-        className="fixed top-4 right-4 z-50 bg-card/80 backdrop-blur-sm hover:bg-card"
-      >
-        <LogOut className="w-4 h-4 mr-2" />
-        Exit
-      </Button>
+      <div className="fixed top-4 right-4 z-50 flex gap-2">
+        {isAdmin && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/admin')}
+            className="bg-card/80 backdrop-blur-sm hover:bg-card"
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Admin
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLogout}
+          className="bg-card/80 backdrop-blur-sm hover:bg-card"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Exit
+        </Button>
+      </div>
 
       <div
         ref={scrollRef}
