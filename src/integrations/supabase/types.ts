@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      event_invitations: {
+        Row: {
+          created_at: string | null
+          event_type: Database["public"]["Enums"]["event_type"]
+          guest_id: string
+          id: string
+          invited: boolean
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: Database["public"]["Enums"]["event_type"]
+          guest_id: string
+          id?: string
+          invited?: boolean
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: Database["public"]["Enums"]["event_type"]
+          guest_id?: string
+          id?: string
+          invited?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_invitations_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       family_members: {
         Row: {
           created_at: string | null
@@ -197,6 +229,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      event_type:
+        | "welcome"
+        | "mehndi"
+        | "haldi"
+        | "nikah"
+        | "reception"
+        | "trek"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -325,6 +364,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      event_type: ["welcome", "mehndi", "haldi", "nikah", "reception", "trek"],
     },
   },
 } as const
