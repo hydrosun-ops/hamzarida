@@ -5,7 +5,7 @@ export const WatercolorBackground = () => {
     <div className="fixed inset-0 pointer-events-none overflow-hidden">
       {/* Animated watercolor painting */}
       <div 
-        className="absolute inset-0 opacity-[0.15] animate-fade-in"
+        className="absolute inset-0 opacity-[0.45] animate-fade-in"
         style={{
           backgroundImage: `url(${karachiSkyline})`,
           backgroundSize: 'cover',
@@ -24,11 +24,11 @@ export const WatercolorBackground = () => {
         @keyframes watercolor-float {
           0%, 100% {
             transform: scale(1.1) translateY(0px);
-            opacity: 0.15;
+            opacity: 0.45;
           }
           50% {
             transform: scale(1.15) translateY(-10px);
-            opacity: 0.12;
+            opacity: 0.40;
           }
         }
       `}</style>

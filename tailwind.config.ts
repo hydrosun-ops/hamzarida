@@ -59,6 +59,8 @@ export default {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         serif: ['Playfair Display', 'serif'],
+        urdu: ['Noto Nastaliq Urdu', 'serif'],
+        display: ['Poppins', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
