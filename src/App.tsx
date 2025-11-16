@@ -9,7 +9,6 @@ import Auth from "./pages/Auth";
 import RSVP from "./pages/RSVP";
 import Admin from "./pages/Admin";
 import AdminSlides from "./pages/AdminSlides";
-import BackgroundCreator from "./pages/BackgroundCreator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,7 +26,6 @@ const App = () => (
           <Route path="/rsvp" element={<RSVP />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/slides" element={<AdminSlides />} />
-          <Route path="/admin/background-creator" element={<BackgroundCreator />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

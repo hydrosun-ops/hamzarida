@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Users, ArrowLeft, Sparkles, Palette } from "lucide-react";
+import { Users, ArrowLeft, Sparkles } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
 
@@ -111,7 +111,7 @@ const Admin = () => {
       <WatercolorBackground />
       
       <div className="max-w-6xl mx-auto pt-8 relative z-10">
-        <div className="flex flex-wrap gap-4 mb-6">
+        <div className="flex gap-4 mb-6">
           <Button
             variant="ghost"
             onClick={() => navigate("/wedding")}
@@ -126,13 +126,6 @@ const Admin = () => {
           >
             <Sparkles className="mr-2 h-4 w-4" />
             Edit Wedding Slides
-          </Button>
-          <Button
-            onClick={() => navigate("/admin/background-creator")}
-            className="bg-gradient-to-r from-watercolor-purple to-watercolor-orange hover:from-watercolor-orange hover:to-watercolor-purple text-white font-display"
-          >
-            <Palette className="mr-2 h-4 w-4" />
-            Create Watercolor Background
           </Button>
         </div>
 
