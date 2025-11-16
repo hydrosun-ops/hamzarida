@@ -1,0 +1,197 @@
+import { useRef, useState, useEffect } from "react";
+import { WeddingPage } from "@/components/WeddingPage";
+import { EventCard } from "@/components/EventCard";
+import { Navigation } from "@/components/Navigation";
+import { Button } from "@/components/ui/button";
+import { Heart, Mountain } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+
+const Wedding = () => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [guestName, setGuestName] = useState<string>("");
+  const navigate = useNavigate();
+  const totalPages = 6;
+
+  useEffect(() => {
+    const fetchGuestInfo = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: guest } = await supabase
+          .from('guests')
+          .select('name')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (guest) {
+          setGuestName(guest.name);
+        }
+      }
+    };
+
+    fetchGuestInfo();
+  }, []);
+
+  const handleNavigate = (direction: 'prev' | 'next') => {
+    if (!scrollRef.current) return;
+    
+    const scrollAmount = window.innerWidth;
+    const newPosition = direction === 'next' 
+      ? scrollRef.current.scrollLeft + scrollAmount
+      : scrollRef.current.scrollLeft - scrollAmount;
+    
+    scrollRef.current.scrollTo({
+      left: newPosition,
+      behavior: 'smooth'
+    });
+  };
+
+  const handleScroll = () => {
+    if (!scrollRef.current) return;
+    const page = Math.round(scrollRef.current.scrollLeft / window.innerWidth);
+    setCurrentPage(page);
+  };
+
+  return (
+    <div className="relative w-full h-screen overflow-hidden">
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex overflow-x-scroll snap-x hide-scrollbar h-full"
+      >
+        {/* Page 1: Welcome */}
+        <WeddingPage background="bg-gradient-to-br from-wedding-cream via-background to-wedding-cream">
+          <div className="space-y-8">
+            <Heart className="w-16 h-16 mx-auto text-secondary animate-pulse" />
+            <h1 className="text-6xl md:text-7xl font-serif font-bold text-primary leading-tight">
+              {guestName ? `Welcome, ${guestName}!` : "You're Invited"}
+            </h1>
+            <p className="text-xl md:text-2xl text-muted-foreground font-light max-w-2xl mx-auto">
+              Join us for a celebration of love in the heart of Pakistan
+            </p>
+            <div className="space-y-4 pt-8">
+              <div className="text-lg text-foreground">
+                <p className="font-semibold text-2xl text-primary mb-2">March 25 - 29, 2025</p>
+                <p className="text-muted-foreground">Optional Week-Long Trek: March 29 - April 5</p>
+              </div>
+              <div className="pt-6">
+                <Button
+                  onClick={() => navigate('/rsvp')}
+                  size="lg"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all"
+                >
+                  RSVP by December 15th
+                </Button>
+              </div>
+            </div>
+          </div>
+        </WeddingPage>
+
+        {/* Page 2: Dholki - March 25 */}
+        <WeddingPage>
+          <div className="space-y-8">
+            <h2 className="text-5xl font-serif font-bold text-primary mb-12">Arrival Day</h2>
+            <EventCard
+              icon="🥁"
+              date="March 25, 2025"
+              title="Dholki Night"
+              venue="Traditional Venue, Pakistan"
+              time="Evening - 7:00 PM onwards"
+              description="Begin our celebration with a traditional Dholki evening filled with music, dance, and joy. This intimate gathering will set the perfect tone for the festivities ahead."
+            />
+          </div>
+        </WeddingPage>
+
+        {/* Page 3: Barat - March 26 */}
+        <WeddingPage background="bg-gradient-to-br from-wedding-emerald/5 to-background">
+          <div className="space-y-8">
+            <h2 className="text-5xl font-serif font-bold text-primary mb-12">The Main Event</h2>
+            <EventCard
+              icon="💍"
+              date="March 26, 2025"
+              title="Barat Ceremony"
+              venue="Grand Wedding Venue, Pakistan"
+              time="Evening - 6:00 PM"
+              description="The main wedding ceremony where families unite. Witness the beautiful traditions, vibrant colors, and heartfelt moments as we begin our journey together."
+            />
+          </div>
+        </WeddingPage>
+
+        {/* Page 4: Village Reception - March 27 */}
+        <WeddingPage>
+          <div className="space-y-8">
+            <h2 className="text-5xl font-serif font-bold text-primary mb-12">Double Celebration</h2>
+            <div className="grid gap-6 max-w-3xl mx-auto">
+              <EventCard
+                icon="🌾"
+                date="March 27, 2025"
+                title="Village Reception"
+                venue="Family Village Home"
+                time="Afternoon - 2:00 PM"
+                description="Experience authentic Pakistani village hospitality with a traditional reception celebrating with our extended family and community."
+              />
+              <EventCard
+                icon="🎉"
+                date="March 27, 2025"
+                title="Warehouse DJ Party"
+                venue="Warehouse Venue"
+                time="Evening - 9:00 PM"
+                description="Dance the night away at our modern celebration. A perfect blend of traditional and contemporary music to keep the energy high!"
+              />
+            </div>
+          </div>
+        </WeddingPage>
+
+        {/* Page 5: Formal Reception - March 28 */}
+        <WeddingPage background="bg-gradient-to-br from-wedding-ruby/5 to-background">
+          <div className="space-y-8">
+            <h2 className="text-5xl font-serif font-bold text-primary mb-12">Grand Finale</h2>
+            <EventCard
+              icon="✨"
+              date="March 28, 2025"
+              title="Formal Reception"
+              venue="Luxury Banquet Hall, Pakistan"
+              time="Evening - 7:00 PM"
+              description="Join us for an elegant evening of dinner, speeches, and celebration. Dress in your finest as we conclude our wedding festivities in style."
+            />
+          </div>
+        </WeddingPage>
+
+        {/* Page 6: Optional Trek */}
+        <WeddingPage background="bg-gradient-to-br from-wedding-sage/10 to-background">
+          <div className="space-y-8">
+            <Mountain className="w-16 h-16 mx-auto text-primary" />
+            <h2 className="text-5xl font-serif font-bold text-primary mb-8">Adventure Awaits</h2>
+            <EventCard
+              icon="🏔️"
+              date="March 29 - April 5, 2025"
+              title="Week-Long Pakistan Trek"
+              venue="Northern Pakistan"
+              time="7 Days of Adventure"
+              description="Extend your stay and explore the breathtaking landscapes of northern Pakistan. Trek through mountain valleys, visit ancient villages, and experience the natural beauty of the region. Departure from Lahore on March 29th."
+            />
+            <div className="pt-6">
+              <Button
+                onClick={() => navigate('/rsvp')}
+                size="lg"
+                variant="secondary"
+                className="px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all"
+              >
+                Include Trek in Your RSVP
+              </Button>
+            </div>
+          </div>
+        </WeddingPage>
+      </div>
+
+      <Navigation
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onNavigate={handleNavigate}
+      />
+    </div>
+  );
+};
+
+export default Wedding;
