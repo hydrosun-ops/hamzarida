@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Heart } from "lucide-react";
+import { WatercolorBackground } from "@/components/WatercolorBackground";
 
 const Auth = () => {
   const [phone, setPhone] = useState("");
@@ -52,8 +53,10 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-watercolor-lavender/30 via-background to-watercolor-rose/20 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border-none shadow-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-watercolor-lavender/30 via-background to-watercolor-rose/20 flex items-center justify-center p-4 relative">
+      <WatercolorBackground />
+      
+      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border-none shadow-2xl relative z-10">
         <CardHeader className="text-center space-y-4">
           <Heart className="w-12 h-12 mx-auto text-watercolor-magenta opacity-80" />
           <CardTitle className="text-3xl font-serif text-watercolor-magenta">Welcome</CardTitle>

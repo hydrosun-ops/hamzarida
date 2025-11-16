@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Users, ArrowLeft } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { WatercolorBackground } from "@/components/WatercolorBackground";
 
 interface Guest {
   id: string;
@@ -106,8 +107,10 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-watercolor-lavender/30 via-background to-watercolor-purple/20 p-4">
-      <div className="max-w-6xl mx-auto pt-8">
+    <div className="min-h-screen bg-gradient-to-br from-watercolor-lavender/30 via-background to-watercolor-purple/20 p-4 relative">
+      <WatercolorBackground />
+      
+      <div className="max-w-6xl mx-auto pt-8 relative z-10">
         <Button
           variant="ghost"
           onClick={() => navigate("/wedding")}
