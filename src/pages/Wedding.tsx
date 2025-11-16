@@ -152,12 +152,14 @@ const Wedding = () => {
         </WeddingPage>
 
         {/* Page 2: Dholki - March 25 */}
-        <WeddingPage background="bg-gradient-to-br from-truck-blue/20 to-background">
+        <WeddingPage background="bg-gradient-to-br from-gray-900 via-black to-gray-800">
           <div className="space-y-8 relative">
             <div className="absolute -top-10 left-10 animate-flower-bloom">
               <SpinningPeacock size={60} className="opacity-50" />
             </div>
-            <h2 className="text-5xl font-serif font-bold text-primary mb-12 border-b-4 border-truck-pink pb-4">Arrival Day</h2>
+            <h2 className="text-5xl font-serif font-bold text-transparent bg-gradient-to-r from-cyan-300 via-yellow-300 to-pink-300 bg-clip-text mb-12 border-b-4 border-truck-pink pb-4 drop-shadow-[0_0_30px_rgba(255,20,147,0.8)]">
+              Arrival Day
+            </h2>
             <EventCard
               icon="🥁"
               date="March 25, 2025"
@@ -170,12 +172,14 @@ const Wedding = () => {
         </WeddingPage>
 
         {/* Page 3: Barat - March 26 */}
-        <WeddingPage background="bg-gradient-to-br from-truck-green/20 to-background">
+        <WeddingPage background="bg-gradient-to-br from-black via-gray-900 to-black">
           <div className="space-y-8 relative">
             <div className="absolute -top-10 right-10 animate-flower-bloom" style={{ animationDelay: '0.3s' }}>
               <SpinningPeacock size={70} className="opacity-60" />
             </div>
-            <h2 className="text-5xl font-serif font-bold text-primary mb-12 border-b-4 border-truck-blue pb-4">The Main Event</h2>
+            <h2 className="text-5xl font-serif font-bold text-transparent bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 bg-clip-text mb-12 border-b-4 border-truck-blue pb-4 drop-shadow-[0_0_30px_rgba(0,191,255,0.8)]">
+              The Main Event
+            </h2>
             <EventCard
               icon="💍"
               date="March 26, 2025"
@@ -188,9 +192,11 @@ const Wedding = () => {
         </WeddingPage>
 
         {/* Page 4: Village Reception - March 27 */}
-        <WeddingPage>
-          <div className="space-y-8">
-            <h2 className="text-5xl font-serif font-bold text-primary mb-12">Double Celebration</h2>
+        <WeddingPage background="bg-gradient-to-br from-gray-800 via-black to-gray-900">
+          <div className="space-y-8 relative">
+            <h2 className="text-5xl font-serif font-bold text-transparent bg-gradient-to-r from-yellow-300 via-green-300 to-cyan-300 bg-clip-text mb-12 drop-shadow-[0_0_30px_rgba(255,255,0,0.8)]">
+              Double Celebration
+            </h2>
             <div className="grid gap-6 max-w-3xl mx-auto">
               <EventCard
                 icon="🌾"
@@ -213,9 +219,11 @@ const Wedding = () => {
         </WeddingPage>
 
         {/* Page 5: Formal Reception - March 28 */}
-        <WeddingPage background="bg-gradient-to-br from-wedding-ruby/5 to-background">
-          <div className="space-y-8">
-            <h2 className="text-5xl font-serif font-bold text-primary mb-12">Grand Finale</h2>
+        <WeddingPage background="bg-gradient-to-br from-black via-purple-950 to-black">
+          <div className="space-y-8 relative">
+            <h2 className="text-5xl font-serif font-bold text-transparent bg-gradient-to-r from-purple-300 via-pink-300 to-red-300 bg-clip-text mb-12 drop-shadow-[0_0_30px_rgba(138,43,226,0.8)]">
+              Grand Finale
+            </h2>
             <EventCard
               icon="✨"
               date="March 28, 2025"
@@ -228,10 +236,12 @@ const Wedding = () => {
         </WeddingPage>
 
         {/* Page 6: Optional Trek */}
-        <WeddingPage background="bg-gradient-to-br from-wedding-sage/10 to-background">
-          <div className="space-y-8">
-            <Mountain className="w-16 h-16 mx-auto text-primary" />
-            <h2 className="text-5xl font-serif font-bold text-primary mb-8">Adventure Awaits</h2>
+        <WeddingPage background="bg-gradient-to-br from-green-950 via-black to-blue-950">
+          <div className="space-y-8 relative">
+            <Mountain className="w-16 h-16 mx-auto text-cyan-300 drop-shadow-[0_0_20px_rgba(0,255,255,0.8)] animate-float" />
+            <h2 className="text-5xl font-serif font-bold text-transparent bg-gradient-to-r from-green-300 via-cyan-300 to-blue-300 bg-clip-text mb-8 drop-shadow-[0_0_30px_rgba(0,255,127,0.8)]">
+              Adventure Awaits
+            </h2>
             <EventCard
               icon="🏔️"
               date="March 29 - April 5, 2025"
