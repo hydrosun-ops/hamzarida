@@ -146,6 +146,42 @@ export type Database = {
           },
         ]
       }
+      wedding_slides: {
+        Row: {
+          background_image: string | null
+          created_at: string
+          description: string | null
+          icon_emoji: string | null
+          id: string
+          page_number: number
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          background_image?: string | null
+          created_at?: string
+          description?: string | null
+          icon_emoji?: string | null
+          id?: string
+          page_number: number
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          background_image?: string | null
+          created_at?: string
+          description?: string | null
+          icon_emoji?: string | null
+          id?: string
+          page_number?: number
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

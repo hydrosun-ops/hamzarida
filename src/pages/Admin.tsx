@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Users, ArrowLeft } from "lucide-react";
+import { Users, ArrowLeft, Sparkles } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
 
@@ -111,14 +111,23 @@ const Admin = () => {
       <WatercolorBackground />
       
       <div className="max-w-6xl mx-auto pt-8 relative z-10">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/wedding")}
-          className="mb-6 hover:bg-watercolor-purple/10"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Wedding
-        </Button>
+        <div className="flex gap-4 mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/wedding")}
+            className="hover:bg-watercolor-purple/10"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Wedding
+          </Button>
+          <Button
+            onClick={() => navigate("/admin/slides")}
+            className="bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white font-display"
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            Edit Wedding Slides
+          </Button>
+        </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           <Card className="bg-white/95 backdrop-blur-sm border-none shadow-2xl">
