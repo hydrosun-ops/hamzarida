@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, Mountain, LogOut, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { WatercolorBackground } from "@/components/WatercolorBackground";
 
 const Wedding = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -75,6 +76,8 @@ const Wedding = () => {
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
+      <WatercolorBackground />
+      
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         {isAdmin && (
           <Button

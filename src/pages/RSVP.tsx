@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Heart, ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { WatercolorBackground } from "@/components/WatercolorBackground";
 
 interface FamilyMember {
   id?: string;
@@ -150,8 +151,10 @@ const RSVP = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-watercolor-lavender/30 via-background to-watercolor-rose/20 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl bg-white/95 backdrop-blur-sm border-none shadow-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-watercolor-lavender/30 via-background to-watercolor-rose/20 flex items-center justify-center p-4 relative">
+      <WatercolorBackground />
+      
+      <Card className="w-full max-w-2xl bg-white/95 backdrop-blur-sm border-none shadow-2xl relative z-10">
         <CardHeader className="text-center space-y-4">
           <Button
             variant="ghost"
