@@ -14,7 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      guests: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      rsvps: {
+        Row: {
+          attending: boolean
+          created_at: string | null
+          dietary_requirements: string | null
+          guest_id: string
+          id: string
+          including_trek: boolean | null
+          plus_one: boolean | null
+          plus_one_name: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          attending: boolean
+          created_at?: string | null
+          dietary_requirements?: string | null
+          guest_id: string
+          id?: string
+          including_trek?: boolean | null
+          plus_one?: boolean | null
+          plus_one_name?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          attending?: boolean
+          created_at?: string | null
+          dietary_requirements?: string | null
+          guest_id?: string
+          id?: string
+          including_trek?: boolean | null
+          plus_one?: boolean | null
+          plus_one_name?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rsvps_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
