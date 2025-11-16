@@ -8,55 +8,83 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Heart, ArrowLeft } from "lucide-react";
+import { Heart, ArrowLeft, Plus, Trash2 } from "lucide-react";
+
+interface FamilyMember {
+  id?: string;
+  name: string;
+  dietary_requirements: string;
+}
 
 const RSVP = () => {
   const [loading, setLoading] = useState(false);
   const [guestId, setGuestId] = useState<string>("");
+  const [guestName, setGuestName] = useState<string>("");
   const [existingRsvp, setExistingRsvp] = useState<any>(null);
   const [attending, setAttending] = useState(true);
   const [includingTrek, setIncludingTrek] = useState(false);
-  const [plusOne, setPlusOne] = useState(false);
-  const [plusOneName, setPlusOneName] = useState("");
   const [dietaryRequirements, setDietaryRequirements] = useState("");
+  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchGuestAndRsvp = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      const storedGuestId = localStorage.getItem('guestId');
+      const storedGuestName = localStorage.getItem('guestName');
+      
+      if (!storedGuestId) {
         navigate('/auth');
         return;
       }
 
-      const { data: guest } = await supabase
-        .from('guests')
-        .select('id')
-        .eq('user_id', user.id)
+      setGuestId(storedGuestId);
+      setGuestName(storedGuestName || '');
+
+      // Fetch existing RSVP
+      const { data: rsvp } = await supabase
+        .from('rsvps')
+        .select('*')
+        .eq('guest_id', storedGuestId)
         .maybeSingle();
 
-      if (guest) {
-        setGuestId(guest.id);
+      if (rsvp) {
+        setExistingRsvp(rsvp);
+        setAttending(rsvp.attending);
+        setIncludingTrek(rsvp.including_trek || false);
+        setDietaryRequirements(rsvp.dietary_requirements || "");
+      }
 
-        const { data: rsvp } = await supabase
-          .from('rsvps')
-          .select('*')
-          .eq('guest_id', guest.id)
-          .maybeSingle();
+      // Fetch existing family members
+      const { data: members } = await supabase
+        .from('family_members')
+        .select('*')
+        .eq('guest_id', storedGuestId);
 
-        if (rsvp) {
-          setExistingRsvp(rsvp);
-          setAttending(rsvp.attending);
-          setIncludingTrek(rsvp.including_trek || false);
-          setPlusOne(rsvp.plus_one || false);
-          setPlusOneName(rsvp.plus_one_name || "");
-          setDietaryRequirements(rsvp.dietary_requirements || "");
-        }
+      if (members && members.length > 0) {
+        setFamilyMembers(members.map(m => ({
+          id: m.id,
+          name: m.name,
+          dietary_requirements: m.dietary_requirements || ''
+        })));
       }
     };
 
     fetchGuestAndRsvp();
   }, [navigate]);
+
+  const addFamilyMember = () => {
+    setFamilyMembers([...familyMembers, { name: '', dietary_requirements: '' }]);
+  };
+
+  const removeFamilyMember = (index: number) => {
+    setFamilyMembers(familyMembers.filter((_, i) => i !== index));
+  };
+
+  const updateFamilyMember = (index: number, field: keyof FamilyMember, value: string) => {
+    const updated = [...familyMembers];
+    updated[index] = { ...updated[index], [field]: value };
+    setFamilyMembers(updated);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,11 +95,11 @@ const RSVP = () => {
         guest_id: guestId,
         attending,
         including_trek: includingTrek,
-        plus_one: plusOne,
-        plus_one_name: plusOne ? plusOneName : null,
+        plus_one: familyMembers.length > 0,
         dietary_requirements: dietaryRequirements || null,
       };
 
+      // Save or update RSVP
       if (existingRsvp) {
         const { error } = await supabase
           .from('rsvps')
@@ -79,17 +107,41 @@ const RSVP = () => {
           .eq('id', existingRsvp.id);
 
         if (error) throw error;
-        toast.success("RSVP updated successfully!");
       } else {
         const { error } = await supabase
           .from('rsvps')
           .insert([rsvpData]);
 
         if (error) throw error;
-        toast.success("RSVP submitted successfully!");
       }
 
-      navigate('/');
+      // Delete all existing family members first
+      await supabase
+        .from('family_members')
+        .delete()
+        .eq('guest_id', guestId);
+
+      // Save family members
+      if (familyMembers.length > 0 && attending) {
+        const membersToInsert = familyMembers
+          .filter(m => m.name.trim())
+          .map(m => ({
+            guest_id: guestId,
+            name: m.name,
+            dietary_requirements: m.dietary_requirements || null
+          }));
+
+        if (membersToInsert.length > 0) {
+          const { error: membersError } = await supabase
+            .from('family_members')
+            .insert(membersToInsert);
+
+          if (membersError) throw membersError;
+        }
+      }
+
+      toast.success("RSVP submitted successfully!");
+      navigate('/wedding');
     } catch (error: any) {
       toast.error(error.message || "Failed to submit RSVP");
     } finally {
@@ -108,7 +160,7 @@ const RSVP = () => {
         <CardHeader className="text-center space-y-4">
           <Button
             variant="ghost"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/wedding')}
             className="absolute left-4 top-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -122,24 +174,45 @@ const RSVP = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-              <div className="space-y-0.5">
-                <Label htmlFor="attending" className="text-base font-semibold">
-                  Will you be attending?
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  March 25-29, 2025
-                </p>
+            {/* Primary Guest Info */}
+            <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+              <h3 className="font-semibold text-lg">{guestName}</h3>
+              
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="attending" className="text-base font-semibold">
+                    Will you be attending?
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    March 25-29, 2025
+                  </p>
+                </div>
+                <Switch
+                  id="attending"
+                  checked={attending}
+                  onCheckedChange={setAttending}
+                />
               </div>
-              <Switch
-                id="attending"
-                checked={attending}
-                onCheckedChange={setAttending}
-              />
+
+              {attending && (
+                <div className="space-y-2">
+                  <Label htmlFor="dietary">
+                    Your Dietary Requirements (Optional)
+                  </Label>
+                  <Textarea
+                    id="dietary"
+                    placeholder="Any dietary restrictions or preferences..."
+                    value={dietaryRequirements}
+                    onChange={(e) => setDietaryRequirements(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+              )}
             </div>
 
             {attending && (
               <>
+                {/* Trek Option */}
                 <div className="flex items-center justify-between p-4 bg-primary/5 rounded-lg border border-primary/20">
                   <div className="space-y-0.5">
                     <Label htmlFor="trek" className="text-base font-semibold">
@@ -156,43 +229,58 @@ const RSVP = () => {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="plusone" className="text-base font-semibold">
-                      Bringing a plus one?
+                {/* Family Members */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-lg font-semibold">
+                      Additional Family Members / Plus Ones
                     </Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addFamilyMember}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Person
+                    </Button>
                   </div>
-                  <Switch
-                    id="plusone"
-                    checked={plusOne}
-                    onCheckedChange={setPlusOne}
-                  />
-                </div>
 
-                {plusOne && (
-                  <div className="space-y-2">
-                    <Label htmlFor="plusOneName">Plus One Name</Label>
-                    <Input
-                      id="plusOneName"
-                      placeholder="Enter guest name"
-                      value={plusOneName}
-                      onChange={(e) => setPlusOneName(e.target.value)}
-                      required={plusOne}
-                    />
-                  </div>
-                )}
+                  {familyMembers.map((member, index) => (
+                    <div key={index} className="p-4 bg-muted/30 rounded-lg space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="font-semibold">Person {index + 1}</Label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFamilyMember(index)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <Input
+                          placeholder="Full Name"
+                          value={member.name}
+                          onChange={(e) => updateFamilyMember(index, 'name', e.target.value)}
+                          required
+                        />
+                        <Textarea
+                          placeholder="Dietary requirements (optional)"
+                          value={member.dietary_requirements}
+                          onChange={(e) => updateFamilyMember(index, 'dietary_requirements', e.target.value)}
+                          rows={2}
+                        />
+                      </div>
+                    </div>
+                  ))}
 
-                <div className="space-y-2">
-                  <Label htmlFor="dietary">
-                    Dietary Requirements (Optional)
-                  </Label>
-                  <Textarea
-                    id="dietary"
-                    placeholder="Let us know about any dietary restrictions or preferences..."
-                    value={dietaryRequirements}
-                    onChange={(e) => setDietaryRequirements(e.target.value)}
-                    rows={4}
-                  />
+                  {familyMembers.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Click "Add Person" to include family members or a plus one
+                    </p>
+                  )}
                 </div>
               </>
             )}

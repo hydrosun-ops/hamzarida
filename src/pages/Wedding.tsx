@@ -3,7 +3,7 @@ import { WeddingPage } from "@/components/WeddingPage";
 import { EventCard } from "@/components/EventCard";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
-import { Heart, Mountain } from "lucide-react";
+import { Heart, Mountain, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,23 +15,26 @@ const Wedding = () => {
   const totalPages = 6;
 
   useEffect(() => {
-    const fetchGuestInfo = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: guest } = await supabase
-          .from('guests')
-          .select('name')
-          .eq('user_id', user.id)
-          .maybeSingle();
-        
-        if (guest) {
-          setGuestName(guest.name);
-        }
-      }
-    };
+    // Check if guest is authenticated
+    const guestId = localStorage.getItem('guestId');
+    const name = localStorage.getItem('guestName');
+    
+    if (!guestId) {
+      navigate('/auth');
+      return;
+    }
+    
+    if (name) {
+      setGuestName(name);
+    }
+  }, [navigate]);
 
-    fetchGuestInfo();
-  }, []);
+  const handleLogout = () => {
+    localStorage.removeItem('guestId');
+    localStorage.removeItem('guestName');
+    localStorage.removeItem('guestPhone');
+    navigate('/auth');
+  };
 
   const handleNavigate = (direction: 'prev' | 'next') => {
     if (!scrollRef.current) return;
@@ -55,6 +58,16 @@ const Wedding = () => {
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleLogout}
+        className="fixed top-4 right-4 z-50 bg-card/80 backdrop-blur-sm hover:bg-card"
+      >
+        <LogOut className="w-4 h-4 mr-2" />
+        Exit
+      </Button>
+
       <div
         ref={scrollRef}
         onScroll={handleScroll}

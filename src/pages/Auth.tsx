@@ -9,27 +9,43 @@ import { toast } from "sonner";
 import { Heart } from "lucide-react";
 
 const Auth = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleAccess = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      // Clean up phone number (remove spaces, dashes, etc)
+      const cleanPhone = phone.replace(/[\s\-()]/g, '');
+      
+      // Check if phone exists in guests table
+      const { data: guest, error } = await supabase
+        .from('guests')
+        .select('id, name, phone')
+        .eq('phone', cleanPhone)
+        .maybeSingle();
 
       if (error) throw error;
 
-      toast.success("Welcome back!");
-      navigate("/");
+      if (!guest) {
+        toast.error("Access code not found. Please check your phone number.");
+        setLoading(false);
+        return;
+      }
+
+      // Store guest info in localStorage
+      localStorage.setItem('guestId', guest.id);
+      localStorage.setItem('guestName', guest.name);
+      localStorage.setItem('guestPhone', guest.phone);
+
+      toast.success(`Welcome, ${guest.name}!`);
+      navigate("/wedding");
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign in");
+      toast.error("Failed to verify access code");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -44,42 +60,37 @@ const Auth = () => {
       
       <Card className="w-full max-w-md relative z-10 bg-card/80 backdrop-blur-sm border-border/50">
         <CardHeader className="text-center space-y-4">
-          <Heart className="w-12 h-12 mx-auto text-secondary" />
+          <Heart className="w-12 h-12 mx-auto text-secondary animate-pulse" />
           <CardTitle className="text-3xl font-serif">Welcome</CardTitle>
-          <CardDescription>
-            Sign in to view your wedding invitation
+          <CardDescription className="text-base">
+            Enter your access code to view your invitation
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleAccess} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="phone" className="text-base">
+                Access Code (Your Phone Number)
+              </Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="your.email@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="phone"
+                type="tel"
+                placeholder="+1 234 567 8900"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 required
+                className="text-lg py-6"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <p className="text-sm text-muted-foreground">
+                Enter the phone number you provided when you were invited
+              </p>
             </div>
             <Button
               type="submit"
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-lg"
               disabled={loading}
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? "Verifying..." : "Enter"}
             </Button>
           </form>
         </CardContent>
