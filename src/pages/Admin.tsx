@@ -37,10 +37,24 @@ const Admin = () => {
 
   useEffect(() => {
     const checkAdminAccess = async () => {
-      const guestId = localStorage.getItem('guestId');
+      // Get current session
+      const { data: { session } } = await supabase.auth.getSession();
       
-      if (!guestId) {
+      if (!session) {
         toast.error("Please log in first");
+        navigate("/auth");
+        return;
+      }
+
+      // Find guest record linked to this user
+      const { data: guest, error: guestError } = await supabase
+        .from('guests')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (guestError || !guest) {
+        toast.error("Guest record not found");
         navigate("/auth");
         return;
       }
@@ -49,7 +63,7 @@ const Admin = () => {
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('guest_id', guestId)
+        .eq('guest_id', guest.id)
         .eq('role', 'admin')
         .maybeSingle();
 
