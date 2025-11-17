@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 interface NavigationProps {
   currentPage: number;
@@ -17,7 +17,7 @@ export const Navigation = ({ currentPage, totalPages, onNavigate }: NavigationPr
         disabled={currentPage === 0}
         className="rounded-full hover:bg-primary/20 hover:scale-110 transition-all"
       >
-        <ChevronLeft className="w-6 h-6" />
+        <ChevronUp className="w-6 h-6" />
       </Button>
       
       <div className="flex gap-2.5">
@@ -40,7 +40,7 @@ export const Navigation = ({ currentPage, totalPages, onNavigate }: NavigationPr
         disabled={currentPage === totalPages - 1}
         className="rounded-full hover:bg-primary/20 hover:scale-110 transition-all"
       >
-        <ChevronRight className="w-6 h-6" />
+        <ChevronDown className="w-6 h-6" />
       </Button>
     </div>
   );

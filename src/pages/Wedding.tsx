@@ -108,30 +108,42 @@ const Wedding = () => {
   const handleNavigate = (direction: 'prev' | 'next') => {
     if (!scrollRef.current) return;
     
-    const scrollAmount = window.innerWidth;
+    const scrollAmount = window.innerHeight;
     const newPosition = direction === 'next' 
-      ? scrollRef.current.scrollLeft + scrollAmount
-      : scrollRef.current.scrollLeft - scrollAmount;
+      ? scrollRef.current.scrollTop + scrollAmount
+      : scrollRef.current.scrollTop - scrollAmount;
     
     scrollRef.current.scrollTo({
-      left: newPosition,
+      top: newPosition,
       behavior: 'smooth'
     });
   };
 
   const handleScroll = () => {
     if (!scrollRef.current) return;
-    const newPage = Math.round(scrollRef.current.scrollLeft / window.innerWidth);
+    const newPage = Math.round(scrollRef.current.scrollTop / window.innerHeight);
     setCurrentPage(newPage);
   };
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
-      {/* Left scroll indicator */}
-      <div className={`fixed left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background/80 to-transparent pointer-events-none z-40 transition-opacity duration-300 ${currentPage === 0 ? 'opacity-0' : 'opacity-100'}`} />
+      {/* Top scroll indicator */}
+      <div className={`fixed top-0 left-0 right-0 h-32 bg-gradient-to-b from-background/80 to-transparent pointer-events-none z-40 transition-opacity duration-300 ${currentPage === 0 ? 'opacity-0' : 'opacity-100'}`} />
       
-      {/* Right scroll indicator */}
-      <div className={`fixed right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background/80 to-transparent pointer-events-none z-40 transition-opacity duration-300 ${currentPage === totalPages - 1 ? 'opacity-0' : 'opacity-100'}`} />
+      {/* Bottom scroll indicator */}
+      <div className={`fixed bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background/80 to-transparent pointer-events-none z-40 transition-opacity duration-300 ${currentPage === totalPages - 1 ? 'opacity-0' : 'opacity-100'}`} />
+      
+      {/* Scroll hint - only show on first page */}
+      {currentPage === 0 && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 animate-bounce">
+          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+            <span className="text-sm">Scroll Down</span>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
+        </div>
+      )}
       
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         {isAdmin && (
@@ -159,7 +171,7 @@ const Wedding = () => {
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex overflow-x-scroll snap-x hide-scrollbar h-full"
+        className="overflow-y-scroll snap-y snap-mandatory hide-scrollbar h-full"
       >
         {/* Page 1: Welcome - Always shown */}
         <WeddingPage 
