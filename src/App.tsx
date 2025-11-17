@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Wedding from "./pages/Wedding";
 import Auth from "./pages/Auth";
 import RSVP from "./pages/RSVP";
+import Travel from "./pages/Travel";
 import Admin from "./pages/Admin";
 import AdminSlides from "./pages/AdminSlides";
 import NotFound from "./pages/NotFound";
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/wedding" element={<Wedding />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/rsvp" element={<RSVP />} />
+          <Route path="/travel" element={<Travel />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/slides" element={<AdminSlides />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

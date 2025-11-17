@@ -1,18 +1,19 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if guest has access code stored
-    const guestId = localStorage.getItem('guestId');
-    
-    if (guestId) {
-      navigate('/wedding');
-    } else {
-      navigate('/auth');
-    }
+    // Check if user is authenticated via Supabase
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate('/wedding');
+      } else {
+        navigate('/auth');
+      }
+    });
   }, [navigate]);
 
   return (
