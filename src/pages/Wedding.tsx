@@ -115,7 +115,7 @@ const Wedding = () => {
       <div className={`fixed bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background/80 to-transparent pointer-events-none z-40 transition-opacity duration-300 ${currentPage === totalPages - 1 ? 'opacity-0' : 'opacity-100'}`} />
       
       {/* Scroll hint - only show on first page */}
-      {currentPage === 0 && <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 animate-bounce">
+      {currentPage === 0 && <div className="fixed bottom-24 left-8 z-40 animate-bounce">
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
             
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
