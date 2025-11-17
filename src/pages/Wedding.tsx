@@ -149,12 +149,12 @@ const Wedding = () => {
             
             {/* Countdown */}
             <div className="pt-4 pb-6">
-              <Countdown targetDate={new Date('2025-03-25T19:00:00+05:00')} eventName="the wedding" />
+              <Countdown targetDate={new Date('2026-03-25T19:00:00+05:00')} eventName="the wedding" />
             </div>
             
             <div className="space-y-4">
               <div className="text-lg text-foreground">
-                <p className="font-semibold text-2xl text-watercolor-purple mb-2">March 25 - 29, 2025</p>
+                <p className="font-semibold text-2xl text-watercolor-purple mb-2">March 25 - 29, 2026</p>
                 <p className="text-muted-foreground">Optional Week-Long Trek: March 29 - April 5</p>
               </div>
               <div className="pt-6 flex flex-col sm:flex-row gap-4 justify-center">
