@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Users, ArrowLeft, Sparkles, Download } from "lucide-react";
+import { Users, ArrowLeft, Sparkles, Download, Edit } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -37,6 +37,7 @@ const Admin = () => {
   const [loading, setLoading] = useState(false);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [editingGuestId, setEditingGuestId] = useState<string | null>(null);
   const [eventInvitations, setEventInvitations] = useState({
     mehndi: true, // Dholki Night
     nikah: true, // Barat Ceremony
@@ -171,6 +172,54 @@ const Admin = () => {
     toast.success('Guest list exported successfully!');
   };
 
+  const handleEditGuest = (guest: Guest) => {
+    setEditingGuestId(guest.id);
+    setName(guest.name);
+    setPhone(guest.phone);
+    setEmail(guest.email || "");
+    
+    // Fetch current event invitations for this guest
+    const fetchInvitations = async () => {
+      const { data } = await supabase
+        .from('event_invitations')
+        .select('event_type')
+        .eq('guest_id', guest.id)
+        .eq('invited', true);
+      
+      if (data) {
+        const invites = {
+          mehndi: false,
+          nikah: false,
+          haldi: false,
+          reception: false,
+          trek: false,
+        };
+        data.forEach(inv => {
+          if (inv.event_type in invites) {
+            invites[inv.event_type as keyof typeof invites] = true;
+          }
+        });
+        setEventInvitations(invites);
+      }
+    };
+    
+    fetchInvitations();
+  };
+
+  const handleCancelEdit = () => {
+    setEditingGuestId(null);
+    setName("");
+    setPhone("");
+    setEmail("");
+    setEventInvitations({
+      mehndi: true,
+      nikah: true,
+      haldi: true,
+      reception: true,
+      trek: true,
+    });
+  };
+
   const handleAddGuest = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -187,21 +236,58 @@ const Admin = () => {
         // If parsing fails, use the input as-is
         formattedPhone = formatIncompletePhoneNumber(phone);
       }
-      
-      const { data: guestData, error: guestError } = await supabase
-        .from('guests')
-        .insert([{ 
-          name, 
-          phone: formattedPhone,
-          email: email || null 
-        }])
-        .select()
-        .single();
 
-      if (guestError) throw guestError;
+      if (editingGuestId) {
+        // Update existing guest
+        const { error: guestError } = await supabase
+          .from('guests')
+          .update({ 
+            name, 
+            phone: formattedPhone,
+            email 
+          })
+          .eq('id', editingGuestId);
 
-      // Insert event invitations
-      const invitationsToInsert = Object.entries(eventInvitations)
+        if (guestError) throw guestError;
+
+        // Delete existing invitations and re-insert
+        await supabase
+          .from('event_invitations')
+          .delete()
+          .eq('guest_id', editingGuestId);
+
+        const invitationsToInsert = Object.entries(eventInvitations)
+          .map(([eventType]) => ({
+            guest_id: editingGuestId,
+            event_type: eventType as 'welcome' | 'mehndi' | 'haldi' | 'nikah' | 'reception' | 'trek',
+            invited: true,
+          }));
+
+        if (invitationsToInsert.length > 0) {
+          const { error: inviteError } = await supabase
+            .from('event_invitations')
+            .insert(invitationsToInsert);
+
+          if (inviteError) throw inviteError;
+        }
+
+        toast.success(`${name} updated successfully!`);
+      } else {
+        // Insert new guest
+        const { data: guestData, error: guestError } = await supabase
+          .from('guests')
+          .insert([{ 
+            name, 
+            phone: formattedPhone,
+            email 
+          }])
+          .select()
+          .single();
+
+        if (guestError) throw guestError;
+
+        // Insert event invitations
+        const invitationsToInsert = Object.entries(eventInvitations)
         .filter(([_, invited]) => invited)
         .map(([eventType]) => ({
           guest_id: guestData.id,
@@ -214,10 +300,13 @@ const Admin = () => {
           .from('event_invitations')
           .insert(invitationsToInsert);
 
-        if (inviteError) throw inviteError;
-      }
+          if (inviteError) throw inviteError;
+        }
 
-      toast.success(`${name} added successfully!`);
+        toast.success(`${name} added successfully!`);
+      }
+      
+      setEditingGuestId(null);
       setName("");
       setPhone("");
       setEmail("");
@@ -269,10 +358,12 @@ const Admin = () => {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Users className="w-6 h-6 text-watercolor-purple" />
-                <CardTitle className="text-2xl font-serif text-watercolor-magenta">Add Guest</CardTitle>
+                <CardTitle className="text-2xl font-serif text-watercolor-magenta">
+                  {editingGuestId ? 'Edit Guest' : 'Add Guest'}
+                </CardTitle>
               </div>
               <CardDescription>
-                Add a new guest to the wedding invitation list
+                {editingGuestId ? 'Update guest information' : 'Add a new guest to the wedding invitation list'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -301,13 +392,14 @@ const Admin = () => {
                   <p className="text-xs text-muted-foreground">International format (e.g., +92 300 1234567)</p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email (Optional)</Label>
+                  <Label htmlFor="email">Email *</Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="john@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    required
                   />
                 </div>
                 
@@ -392,13 +484,25 @@ const Admin = () => {
                   </div>
                 </div>
                 
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white"
-                  disabled={loading}
-                >
-                  {loading ? "Adding..." : "Add Guest"}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white"
+                    disabled={loading}
+                  >
+                    {loading ? (editingGuestId ? "Updating..." : "Adding...") : (editingGuestId ? "Update Guest" : "Add Guest")}
+                  </Button>
+                  {editingGuestId && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCancelEdit}
+                      disabled={loading}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                </div>
               </form>
             </CardContent>
           </Card>
@@ -434,6 +538,7 @@ const Admin = () => {
                       <TableHead className="sticky top-0 bg-background">Trek</TableHead>
                       <TableHead className="sticky top-0 bg-background">Dietary</TableHead>
                       <TableHead className="sticky top-0 bg-background">Family</TableHead>
+                      <TableHead className="sticky top-0 bg-background">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -491,6 +596,16 @@ const Admin = () => {
                           ) : (
                             <span className="text-muted-foreground">None</span>
                           )}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditGuest(guest)}
+                            className="hover:bg-watercolor-purple/10"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
