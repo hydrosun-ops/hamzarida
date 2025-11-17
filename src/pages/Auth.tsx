@@ -8,13 +8,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Heart } from "lucide-react";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
-import { parsePhoneNumber } from 'libphonenumber-js';
+import { parsePhoneNumber, AsYouType } from 'libphonenumber-js';
 
 const Auth = () => {
   const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
+  const [formattedPhone, setFormattedPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,7 +34,15 @@ const Auth = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleSendOTP = async (e: React.FormEvent) => {
+  const handlePhoneChange = (value: string) => {
+    // Format as user types
+    const formatter = new AsYouType();
+    const formatted = formatter.input(value);
+    setPhone(value);
+    setFormattedPhone(formatted);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -42,12 +50,16 @@ const Auth = () => {
       // Parse and normalize phone number
       let normalizedPhone = phone;
       try {
-        const phoneNumber = parsePhoneNumber(phone, 'PK');
-        if (phoneNumber) {
-          normalizedPhone = phoneNumber.format('E.164'); // Format as +923001234567
+        const phoneNumber = parsePhoneNumber(phone);
+        if (phoneNumber && phoneNumber.isValid()) {
+          normalizedPhone = phoneNumber.format('E.164');
+        } else {
+          toast.error("Please enter a valid international phone number (e.g., +1 650 382 9927)");
+          setLoading(false);
+          return;
         }
       } catch {
-        toast.error("Please enter a valid phone number");
+        toast.error("Please enter a valid international phone number (e.g., +1 650 382 9927)");
         setLoading(false);
         return;
       }
@@ -55,7 +67,7 @@ const Auth = () => {
       // Check if guest exists with this phone number
       const { data: guests, error: guestError } = await supabase
         .from('guests')
-        .select('id, name, phone')
+        .select('id, name, phone, user_id')
         .eq('phone', normalizedPhone);
 
       if (guestError) throw guestError;
@@ -66,75 +78,52 @@ const Auth = () => {
         return;
       }
 
-      // Send OTP via Supabase Auth
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: normalizedPhone,
+      const guest = guests[0];
+
+      // Sign up or sign in with email/password (using phone as identifier)
+      const guestEmail = `${normalizedPhone.replace('+', '')}@wedding.guest`;
+      
+      // Try to sign in first
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: guestEmail,
+        password: password,
       });
 
-      if (error) throw error;
+      if (signInError) {
+        if (signInError.message.includes('Invalid login credentials')) {
+          // Try to sign up if not exists
+          const { data: authData, error: signUpError } = await supabase.auth.signUp({
+            email: guestEmail,
+            password: password,
+            options: {
+              data: {
+                phone: normalizedPhone,
+                name: guest.name,
+              }
+            }
+          });
 
-      setOtpSent(true);
-      toast.success("Verification code sent to your phone!");
-    } catch (error: any) {
-      toast.error("Failed to send verification code: " + error.message);
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+          if (signUpError) throw signUpError;
 
-  const handleVerifyOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+          // Link guest to auth user
+          if (authData.user) {
+            await supabase
+              .from('guests')
+              .update({ user_id: authData.user.id })
+              .eq('id', guest.id);
+          }
 
-    try {
-      // Parse and normalize phone number
-      let normalizedPhone = phone;
-      try {
-        const phoneNumber = parsePhoneNumber(phone, 'PK');
-        if (phoneNumber) {
-          normalizedPhone = phoneNumber.format('E.164');
+          toast.success(`Welcome, ${guest.name}!`);
+        } else {
+          throw signInError;
         }
-      } catch {
-        toast.error("Please enter a valid phone number");
-        setLoading(false);
-        return;
+      } else {
+        toast.success(`Welcome back, ${guest.name}!`);
       }
 
-      // Verify OTP
-      const { data: authData, error: verifyError } = await supabase.auth.verifyOtp({
-        phone: normalizedPhone,
-        token: otp,
-        type: 'sms',
-      });
-
-      if (verifyError) throw verifyError;
-
-      if (!authData.user) {
-        throw new Error("Authentication failed");
-      }
-
-      // Link guest record to authenticated user
-      const { data: guest, error: guestError } = await supabase
-        .from('guests')
-        .select('id, name')
-        .eq('phone', normalizedPhone)
-        .single();
-
-      if (guestError) throw guestError;
-
-      // Update guest record with user_id
-      const { error: updateError } = await supabase
-        .from('guests')
-        .update({ user_id: authData.user.id })
-        .eq('id', guest.id);
-
-      if (updateError) throw updateError;
-
-      toast.success(`Welcome, ${guest.name}!`);
       navigate("/wedding");
     } catch (error: any) {
-      toast.error("Failed to verify code: " + error.message);
+      toast.error("Login failed: " + error.message);
       console.error(error);
     } finally {
       setLoading(false);
@@ -142,85 +131,63 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-watercolor-lavender/30 via-background to-watercolor-rose/20 flex items-center justify-center p-4 relative">
+    <div className="min-h-screen flex items-center justify-center p-4 relative">
       <WatercolorBackground />
-      
-      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border-none shadow-2xl relative z-10">
+      <Card className="w-full max-w-md mx-auto backdrop-blur-sm bg-card/95 border-2 border-primary/20 shadow-2xl">
         <CardHeader className="text-center space-y-4">
-          <Heart className="w-12 h-12 mx-auto text-watercolor-magenta opacity-80" />
-          <CardTitle className="text-3xl font-serif text-watercolor-magenta">Welcome</CardTitle>
-          <CardDescription className="text-base text-muted-foreground">
-            {otpSent ? "Enter the verification code sent to your phone" : "Secure verification via SMS"}
+          <div className="flex justify-center">
+            <Heart className="w-16 h-16 text-primary fill-primary animate-pulse" />
+          </div>
+          <CardTitle className="text-3xl font-serif">Welcome</CardTitle>
+          <CardDescription className="text-base">
+            Enter your phone number and password to access your invitation
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {!otpSent ? (
-            <form onSubmit={handleSendOTP} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-base">
-                  Phone Number
-                </Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="+92 300 1234567"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required
-                  className="text-lg py-6"
-                />
-                <p className="text-sm text-muted-foreground">
-                  Enter the phone number you provided when you were invited
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-base font-medium">Phone Number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="+1 650 382 9927"
+                value={phone}
+                onChange={(e) => handlePhoneChange(e.target.value)}
+                required
+                className="text-base h-12 border-2 focus:border-primary"
+              />
+              {formattedPhone && (
+                <p className="text-xs text-muted-foreground">
+                  Format: {formattedPhone}
                 </p>
-              </div>
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white py-6 text-lg shadow-lg"
-                disabled={loading}
-              >
-                {loading ? "Sending..." : "Send Verification Code"}
-              </Button>
-            </form>
-          ) : (
-            <form onSubmit={handleVerifyOTP} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="otp" className="text-base">
-                  Verification Code
-                </Label>
-                <Input
-                  id="otp"
-                  type="text"
-                  placeholder="123456"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  required
-                  maxLength={6}
-                  className="text-lg py-6 text-center tracking-widest"
-                />
-                <p className="text-sm text-muted-foreground">
-                  Enter the 6-digit code sent to {phone}
-                </p>
-              </div>
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white py-6 text-lg shadow-lg"
-                disabled={loading}
-              >
-                {loading ? "Verifying..." : "Verify & Continue"}
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full"
-                onClick={() => {
-                  setOtpSent(false);
-                  setOtp("");
-                }}
-              >
-                Change Phone Number
-              </Button>
-            </form>
-          )}
+              )}
+              <p className="text-xs text-muted-foreground">
+                Include country code (e.g., +92 for Pakistan, +1 for USA)
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-base font-medium">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="text-base h-12 border-2 focus:border-primary"
+              />
+              <p className="text-xs text-muted-foreground">
+                First time? Your password will be created automatically
+              </p>
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full h-12 text-base font-semibold"
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>
