@@ -3,9 +3,55 @@ import { Button } from "@/components/ui/button";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
 import { Plane, MapPin, Bus, Info, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+
+interface TravelInfo {
+  id: string;
+  section_type: string;
+  title: string;
+  subtitle: string | null;
+  content: string | null;
+  icon_emoji: string | null;
+  display_order: number;
+}
 
 const Travel = () => {
   const navigate = useNavigate();
+  const [travelSections, setTravelSections] = useState<TravelInfo[]>([]);
+
+  useEffect(() => {
+    fetchTravelInfo();
+  }, []);
+
+  const fetchTravelInfo = async () => {
+    const { data, error } = await supabase
+      .from('travel_info')
+      .select('*')
+      .order('display_order');
+    
+    if (error) {
+      console.error('Error fetching travel info:', error);
+      return;
+    }
+    
+    setTravelSections(data || []);
+  };
+
+  const getIconComponent = (sectionType: string) => {
+    switch (sectionType) {
+      case 'airport':
+        return <Plane className="w-6 h-6" />;
+      case 'transportation':
+        return <Bus className="w-6 h-6" />;
+      case 'important':
+        return <Info className="w-6 h-6" />;
+      case 'contact':
+        return <MapPin className="w-6 h-6" />;
+      default:
+        return <Info className="w-6 h-6" />;
+    }
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-watercolor-lavender/30 via-background to-watercolor-rose/20 relative">
@@ -30,30 +76,30 @@ const Travel = () => {
             </p>
           </div>
 
-          <Card className="bg-white/95 backdrop-blur-sm border-watercolor-magenta/20 shadow-xl">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3 text-2xl text-watercolor-magenta">
-                <Plane className="w-6 h-6" />
-                International Arrival
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <h3 className="font-semibold text-lg">Islamabad International Airport (ISB)</h3>
-                <p className="text-muted-foreground">
-                  All international guests should arrive into and depart from Islamabad International Airport (ISB).
-                  This is the main gateway for all wedding events.
-                </p>
-              </div>
-              
-              <div className="p-4 bg-watercolor-lavender/10 rounded-lg border border-watercolor-magenta/10">
-                <p className="text-sm">
-                  <strong>Airport Code:</strong> ISB (Islamabad International Airport)<br />
-                  <strong>Location:</strong> Located approximately 30km from Islamabad city center
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          {travelSections.map((section) => (
+            <Card key={section.id} className="bg-white/95 backdrop-blur-sm border-watercolor-magenta/20 shadow-xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3 text-2xl text-watercolor-magenta">
+                  {getIconComponent(section.section_type)}
+                  {section.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {section.subtitle && (
+                  <p className="text-muted-foreground font-medium">{section.subtitle}</p>
+                )}
+                {section.content && (
+                  <div className="prose prose-sm max-w-none">
+                    {section.content.split('\n\n').map((paragraph, idx) => (
+                      <p key={idx} className="text-muted-foreground whitespace-pre-line mb-3">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
 
           <Card className="bg-white/95 backdrop-blur-sm border-watercolor-magenta/20 shadow-xl">
             <CardHeader>
