@@ -199,11 +199,20 @@ const AdminSlides = () => {
                 <p className="text-sm text-muted-foreground line-clamp-3">{slide.description}</p>
                 {slide.background_image && (
                   <div className="mt-4 rounded-md overflow-hidden h-32 bg-gray-100">
-                    <img 
-                      src={slide.background_image} 
-                      alt="Background" 
-                      className="w-full h-full object-cover opacity-50"
-                    />
+                    {slide.background_image.match(/\.(mp4|webm|ogg)$/i) ? (
+                      <video 
+                        src={slide.background_image} 
+                        className="w-full h-full object-cover opacity-50"
+                        muted
+                        loop
+                      />
+                    ) : (
+                      <img 
+                        src={slide.background_image} 
+                        alt="Background" 
+                        className="w-full h-full object-cover opacity-50"
+                      />
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -278,7 +287,7 @@ const AdminSlides = () => {
                 <div className="space-y-2">
                   <Label className="font-display text-watercolor-purple flex items-center gap-2">
                     <Image className="w-4 h-4" />
-                    Background Image
+                    Background Media (Image or Video)
                   </Label>
                   
                   <div className="flex gap-2">
@@ -289,36 +298,47 @@ const AdminSlides = () => {
                       className="bg-gradient-to-r from-watercolor-purple to-watercolor-magenta hover:from-watercolor-magenta hover:to-watercolor-purple text-white"
                     >
                       <Upload className="w-4 h-4 mr-2" />
-                      {uploading ? "Uploading..." : "Upload Image"}
+                      {uploading ? "Uploading..." : "Upload Image/Video"}
                     </Button>
                     
                     <Input
                       ref={fileInputRef}
                       type="file"
-                      accept="image/*"
+                      accept="image/*,video/*"
                       onChange={handleFileUpload}
                       className="hidden"
                     />
                   </div>
 
                   <div className="text-xs text-muted-foreground">
-                    Or paste an image URL below:
+                    Supports: Images (JPG, PNG, WEBP) and Videos (MP4, WEBM)
+                    <br />
+                    Or paste a media URL below:
                   </div>
                   
                   <Input
                     value={editingSlide.background_image || ''}
                     onChange={(e) => setEditingSlide({...editingSlide, background_image: e.target.value})}
-                    placeholder="https://example.com/image.jpg"
+                    placeholder="https://example.com/media.mp4"
                     className="border-2 border-watercolor-purple/20"
                   />
                   
                   {editingSlide.background_image && (
                     <div className="mt-2 rounded-lg overflow-hidden h-48 border-2 border-watercolor-purple/20">
-                      <img 
-                        src={editingSlide.background_image} 
-                        alt="Preview" 
-                        className="w-full h-full object-cover"
-                      />
+                      {editingSlide.background_image.match(/\.(mp4|webm|ogg)$/i) ? (
+                        <video 
+                          src={editingSlide.background_image} 
+                          className="w-full h-full object-cover"
+                          controls
+                          muted
+                        />
+                      ) : (
+                        <img 
+                          src={editingSlide.background_image} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                     </div>
                   )}
                 </div>
