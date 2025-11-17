@@ -1,9 +1,10 @@
 import { useRef, useState, useEffect } from "react";
 import { WeddingPage } from "@/components/WeddingPage";
 import { EventCard } from "@/components/EventCard";
+import { Countdown } from "@/components/Countdown";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
-import { Heart, Mountain, LogOut, Settings } from "lucide-react";
+import { Heart, Mountain, LogOut, Settings, Plane } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
@@ -34,51 +35,56 @@ const Wedding = () => {
   const totalPages = visiblePageCount;
 
   useEffect(() => {
-    // Check if guest is authenticated
-    const guestId = localStorage.getItem('guestId');
-    const name = localStorage.getItem('guestName');
-    
-    if (!guestId) {
-      navigate('/auth');
-      return;
-    }
-    
-    if (name) {
-      setGuestName(name);
-    }
+    // Check if user is authenticated via Supabase
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        navigate('/auth');
+        return;
+      }
 
-    // Check if user is admin and fetch event invitations
-    const checkAdminRole = async () => {
-      if (guestId) {
-        const { data } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('guest_id', guestId)
-          .eq('role', 'admin')
-          .maybeSingle();
-        
-        setIsAdmin(!!data);
+      // Fetch guest data
+      const { data: guest } = await supabase
+        .from('guests')
+        .select('id, name')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
 
-        // Fetch event invitations
-        const { data: invitations } = await supabase
-          .from('event_invitations')
-          .select('event_type')
-          .eq('guest_id', guestId)
-          .eq('invited', true);
-        
-        if (invitations) {
-          setInvitedEvents(new Set(invitations.map(inv => inv.event_type)));
-        }
+      if (!guest) {
+        navigate('/auth');
+        return;
+      }
+
+      setGuestName(guest.name);
+
+      // Check if user is admin
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('guest_id', guest.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      
+      setIsAdmin(!!roleData);
+
+      // Fetch event invitations
+      const { data: invitations } = await supabase
+        .from('event_invitations')
+        .select('event_type')
+        .eq('guest_id', guest.id)
+        .eq('invited', true);
+      
+      if (invitations) {
+        setInvitedEvents(new Set(invitations.map(inv => inv.event_type)));
       }
     };
 
-    checkAdminRole();
+    checkAuth();
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('guestId');
-    localStorage.removeItem('guestName');
-    localStorage.removeItem('guestPhone');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate('/auth');
   };
 
@@ -150,18 +156,36 @@ const Wedding = () => {
             <p className="text-xl md:text-2xl text-muted-foreground font-light max-w-2xl mx-auto">
               Join us for a celebration of love in the heart of Pakistan
             </p>
-            <div className="space-y-4 pt-8">
+            
+            {/* Countdown */}
+            <div className="pt-4 pb-6">
+              <Countdown 
+                targetDate={new Date('2025-03-25T19:00:00+05:00')} 
+                eventName="the wedding"
+              />
+            </div>
+            
+            <div className="space-y-4">
               <div className="text-lg text-foreground">
                 <p className="font-semibold text-2xl text-watercolor-purple mb-2">March 25 - 29, 2025</p>
                 <p className="text-muted-foreground">Optional Week-Long Trek: March 29 - April 5</p>
               </div>
-              <div className="pt-6">
+              <div className="pt-6 flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   onClick={() => navigate('/rsvp')}
                   size="lg"
                   className="bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-500"
                 >
                   RSVP by December 15th
+                </Button>
+                <Button
+                  onClick={() => navigate('/travel')}
+                  size="lg"
+                  variant="outline"
+                  className="border-2 border-watercolor-purple text-watercolor-purple hover:bg-watercolor-purple/10 px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-500"
+                >
+                  <Plane className="w-5 h-5 mr-2" />
+                  Travel Info
                 </Button>
               </div>
             </div>

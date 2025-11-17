@@ -30,22 +30,34 @@ const RSVP = () => {
 
   useEffect(() => {
     const fetchGuestAndRsvp = async () => {
-      const storedGuestId = localStorage.getItem('guestId');
-      const storedGuestName = localStorage.getItem('guestName');
+      // Check authentication
+      const { data: { session } } = await supabase.auth.getSession();
       
-      if (!storedGuestId) {
+      if (!session) {
         navigate('/auth');
         return;
       }
 
-      setGuestId(storedGuestId);
-      setGuestName(storedGuestName || '');
+      // Fetch guest data
+      const { data: guest } = await supabase
+        .from('guests')
+        .select('id, name')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (!guest) {
+        navigate('/auth');
+        return;
+      }
+
+      setGuestId(guest.id);
+      setGuestName(guest.name);
 
       // Fetch existing RSVP
       const { data: rsvp } = await supabase
         .from('rsvps')
         .select('*')
-        .eq('guest_id', storedGuestId)
+        .eq('guest_id', guest.id)
         .maybeSingle();
 
       if (rsvp) {
@@ -59,7 +71,7 @@ const RSVP = () => {
       const { data: members } = await supabase
         .from('family_members')
         .select('*')
-        .eq('guest_id', storedGuestId);
+        .eq('guest_id', guest.id);
 
       if (members && members.length > 0) {
         setFamilyMembers(members.map(m => ({
@@ -166,8 +178,11 @@ const RSVP = () => {
           </Button>
           <Heart className="w-12 h-12 mx-auto text-watercolor-magenta opacity-80" />
           <CardTitle className="text-4xl font-serif text-watercolor-magenta">RSVP</CardTitle>
-          <CardDescription className="text-base">
-            Please respond by December 15th, 2024
+          <CardDescription className="text-base space-y-2">
+            <p>Please respond by December 15th, 2024</p>
+            <p className="text-sm text-watercolor-purple font-medium mt-2">
+              💬 Please make sure your phone number is a WhatsApp number for event updates
+            </p>
           </CardDescription>
         </CardHeader>
         <CardContent>
