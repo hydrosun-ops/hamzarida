@@ -15,6 +15,7 @@ const Wedding = () => {
   const [guestName, setGuestName] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [invitedEvents, setInvitedEvents] = useState<Set<string>>(new Set());
+  const [slideBackgrounds, setSlideBackgrounds] = useState<Record<number, string>>({});
   const navigate = useNavigate();
 
   // Helper to check if guest is invited to an event (show all if no invitations set for backwards compatibility)
@@ -78,6 +79,22 @@ const Wedding = () => {
       if (invitations) {
         setInvitedEvents(new Set(invitations.map(inv => inv.event_type)));
       }
+
+      // Fetch slide backgrounds
+      const { data: slides } = await supabase
+        .from('wedding_slides')
+        .select('page_number, background_image')
+        .order('page_number');
+      
+      if (slides) {
+        const backgrounds: Record<number, string> = {};
+        slides.forEach(slide => {
+          if (slide.background_image) {
+            backgrounds[slide.page_number] = slide.background_image;
+          }
+        });
+        setSlideBackgrounds(backgrounds);
+      }
     };
 
     checkAuth();
@@ -110,8 +127,6 @@ const Wedding = () => {
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
-      <WatercolorBackground />
-      
       {/* Left scroll indicator */}
       <div className={`fixed left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background/80 to-transparent pointer-events-none z-40 transition-opacity duration-300 ${currentPage === 0 ? 'opacity-0' : 'opacity-100'}`} />
       
@@ -147,7 +162,10 @@ const Wedding = () => {
         className="flex overflow-x-scroll snap-x hide-scrollbar h-full"
       >
         {/* Page 1: Welcome - Always shown */}
-        <WeddingPage background="bg-gradient-to-br from-watercolor-lavender/30 via-background to-watercolor-rose/20">
+        <WeddingPage 
+          background="bg-gradient-to-br from-watercolor-lavender/30 via-background to-watercolor-rose/20"
+          backgroundMedia={slideBackgrounds[1]}
+        >
           <div className="space-y-8 animate-fade-in">
             <Heart className="w-16 h-16 mx-auto text-watercolor-magenta opacity-80" />
             <h1 className="text-6xl md:text-7xl font-serif font-bold text-watercolor-magenta leading-tight">
@@ -194,7 +212,10 @@ const Wedding = () => {
 
         {/* Page 2: Dholki - March 25 */}
         {isInvitedTo('mehndi') && (
-          <WeddingPage background="bg-gradient-to-br from-watercolor-purple/20 to-background">
+          <WeddingPage 
+            background="bg-gradient-to-br from-watercolor-purple/20 to-background"
+            backgroundMedia={slideBackgrounds[2]}
+          >
           <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <h2 className="text-5xl font-serif font-bold text-watercolor-purple mb-12">
               Arrival Day
@@ -213,7 +234,10 @@ const Wedding = () => {
 
         {/* Page 3: Barat - March 26 */}
         {isInvitedTo('nikah') && (
-          <WeddingPage background="bg-gradient-to-br from-watercolor-rose/20 to-background">
+          <WeddingPage 
+            background="bg-gradient-to-br from-watercolor-rose/20 to-background"
+            backgroundMedia={slideBackgrounds[3]}
+          >
           <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.3s' }}>
             <h2 className="text-5xl font-serif font-bold text-watercolor-magenta mb-12">
               The Main Event
@@ -232,7 +256,10 @@ const Wedding = () => {
 
         {/* Page 4: Village Reception - March 27 */}
         {isInvitedTo('haldi') && (
-          <WeddingPage background="bg-gradient-to-br from-watercolor-orange/20 to-background">
+          <WeddingPage 
+            background="bg-gradient-to-br from-watercolor-orange/20 to-background"
+            backgroundMedia={slideBackgrounds[4]}
+          >
           <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <h2 className="text-5xl font-serif font-bold text-watercolor-orange mb-12">
               Double Celebration
@@ -261,7 +288,10 @@ const Wedding = () => {
 
         {/* Page 5: Formal Reception - March 28 */}
         {isInvitedTo('reception') && (
-          <WeddingPage background="bg-gradient-to-br from-watercolor-gold/20 to-background">
+          <WeddingPage 
+            background="bg-gradient-to-br from-watercolor-gold/20 to-background"
+            backgroundMedia={slideBackgrounds[5]}
+          >
           <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.5s' }}>
             <h2 className="text-5xl font-serif font-bold text-watercolor-gold mb-12">
               Grand Finale
@@ -280,7 +310,10 @@ const Wedding = () => {
 
         {/* Page 6: Optional Trek */}
         {isInvitedTo('trek') && (
-          <WeddingPage background="bg-gradient-to-br from-watercolor-lavender/20 to-background">
+          <WeddingPage 
+            background="bg-gradient-to-br from-watercolor-lavender/20 to-background"
+            backgroundMedia={slideBackgrounds[6]}
+          >
           <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
             <Mountain className="w-16 h-16 mx-auto text-watercolor-purple opacity-80" />
             <h2 className="text-5xl font-serif font-bold text-watercolor-purple mb-8">
