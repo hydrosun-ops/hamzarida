@@ -9,9 +9,6 @@ interface CountdownProps {
 export const Countdown = ({ targetDate, eventName = "the wedding" }: CountdownProps) => {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
   });
 
   useEffect(() => {
@@ -21,9 +18,6 @@ export const Countdown = ({ targetDate, eventName = "the wedding" }: CountdownPr
       if (difference > 0) {
         setTimeLeft({
           days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60),
         });
       }
     };
@@ -39,20 +33,15 @@ export const Countdown = ({ targetDate, eventName = "the wedding" }: CountdownPr
       <h3 className="text-2xl font-serif text-center mb-6 text-watercolor-magenta">
         Countdown to {eventName}
       </h3>
-      <div className="grid grid-cols-4 gap-4">
-        {Object.entries(timeLeft).map(([unit, value]) => (
-          <Card
-            key={unit}
-            className="p-6 text-center bg-gradient-to-br from-white/90 to-watercolor-lavender/20 backdrop-blur-sm border-watercolor-magenta/20 hover:shadow-xl transition-all duration-300"
-          >
-            <div className="text-4xl md:text-5xl font-bold text-watercolor-magenta mb-2">
-              {value.toString().padStart(2, '0')}
-            </div>
-            <div className="text-sm md:text-base text-muted-foreground capitalize">
-              {unit}
-            </div>
-          </Card>
-        ))}
+      <div className="flex justify-center">
+        <Card className="p-8 text-center bg-gradient-to-br from-white/90 to-watercolor-lavender/20 backdrop-blur-sm border-watercolor-magenta/20 hover:shadow-xl transition-all duration-300 min-w-[200px]">
+          <div className="text-6xl md:text-7xl font-bold text-watercolor-magenta mb-3">
+            {timeLeft.days}
+          </div>
+          <div className="text-lg md:text-xl text-muted-foreground">
+            Days
+          </div>
+        </Card>
       </div>
     </div>
   );
