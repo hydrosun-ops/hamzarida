@@ -149,6 +149,42 @@ export type Database = {
           },
         ]
       }
+      travel_info: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          display_order: number
+          icon_emoji: string | null
+          id: string
+          section_type: string
+          subtitle: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          display_order: number
+          icon_emoji?: string | null
+          id?: string
+          section_type: string
+          subtitle?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          display_order?: number
+          icon_emoji?: string | null
+          id?: string
+          section_type?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null

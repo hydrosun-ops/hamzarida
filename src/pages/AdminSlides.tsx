@@ -20,10 +20,22 @@ interface Slide {
   background_image: string | null;
 }
 
+interface TravelInfo {
+  id: string;
+  section_type: string;
+  title: string;
+  subtitle: string | null;
+  content: string | null;
+  icon_emoji: string | null;
+  display_order: number;
+}
+
 const AdminSlides = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
+  const [travelInfo, setTravelInfo] = useState<TravelInfo[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [editingSlide, setEditingSlide] = useState<Slide | null>(null);
+  const [editingTravel, setEditingTravel] = useState<TravelInfo | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -68,6 +80,7 @@ const AdminSlides = () => {
 
       setIsAdmin(true);
       fetchSlides();
+      fetchTravelInfo();
     };
 
     checkAdminAccess();
@@ -86,6 +99,21 @@ const AdminSlides = () => {
     }
 
     setSlides(data || []);
+  };
+
+  const fetchTravelInfo = async () => {
+    const { data, error } = await supabase
+      .from('travel_info')
+      .select('*')
+      .order('display_order');
+
+    if (error) {
+      toast.error("Failed to load travel info");
+      console.error(error);
+      return;
+    }
+
+    setTravelInfo(data || []);
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,6 +183,30 @@ const AdminSlides = () => {
     setEditingSlide(null);
   };
 
+  const handleUpdateTravel = async () => {
+    if (!editingTravel) return;
+
+    const { error } = await supabase
+      .from('travel_info')
+      .update({
+        title: editingTravel.title,
+        subtitle: editingTravel.subtitle,
+        content: editingTravel.content,
+        icon_emoji: editingTravel.icon_emoji,
+      })
+      .eq('id', editingTravel.id);
+
+    if (error) {
+      toast.error("Failed to update travel info");
+      console.error(error);
+      return;
+    }
+
+    toast.success("Travel info updated successfully!");
+    fetchTravelInfo();
+    setEditingTravel(null);
+  };
+
   if (!isAdmin) {
     return null;
   }
@@ -215,6 +267,35 @@ const AdminSlides = () => {
                     )}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="space-y-6 mb-12">
+          <h2 className="text-3xl font-serif text-watercolor-magenta">Travel Information</h2>
+          {travelInfo.map((info) => (
+            <Card
+              key={info.id}
+              className="bg-white/95 backdrop-blur-sm border-watercolor-magenta/20 shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+              onClick={() => setEditingTravel(info)}
+            >
+              <CardHeader className="border-b-2 border-watercolor-purple/10">
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-4xl">{info.icon_emoji || '📝'}</span>
+                    <div>
+                      <div className="text-xl font-display text-watercolor-magenta">{info.title}</div>
+                      {info.subtitle && (
+                        <div className="text-sm text-muted-foreground font-normal">{info.subtitle}</div>
+                      )}
+                    </div>
+                  </div>
+                  <Sparkles className="w-5 h-5 text-watercolor-purple" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <p className="text-muted-foreground line-clamp-3 whitespace-pre-line">{info.content}</p>
               </CardContent>
             </Card>
           ))}
@@ -353,6 +434,91 @@ const AdminSlides = () => {
                   <Button
                     variant="outline"
                     onClick={() => setEditingSlide(null)}
+                    className="border-2 border-watercolor-purple/20 font-display"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {editingTravel && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <Card className="w-full max-w-2xl bg-white/98 max-h-[90vh] overflow-y-auto">
+              <CardHeader className="border-b-2 border-watercolor-purple/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-2xl font-display text-watercolor-magenta flex items-center gap-2">
+                      <Sparkles className="w-6 h-6" />
+                      Edit Travel Info: {editingTravel.section_type}
+                    </CardTitle>
+                    <CardDescription>Update travel information content</CardDescription>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setEditingTravel(null)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    ✕
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-6">
+                <div className="space-y-2">
+                  <Label htmlFor="travel-icon" className="font-display text-watercolor-purple">Icon Emoji</Label>
+                  <Input
+                    id="travel-icon"
+                    value={editingTravel.icon_emoji || ''}
+                    onChange={(e) => setEditingTravel({...editingTravel, icon_emoji: e.target.value})}
+                    placeholder="✈️"
+                    className="text-4xl h-16 text-center border-2 border-watercolor-purple/20"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="travel-title" className="font-display text-watercolor-purple">Title</Label>
+                  <Input
+                    id="travel-title"
+                    value={editingTravel.title}
+                    onChange={(e) => setEditingTravel({...editingTravel, title: e.target.value})}
+                    className="font-display border-2 border-watercolor-purple/20"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="travel-subtitle" className="font-display text-watercolor-purple">Subtitle</Label>
+                  <Input
+                    id="travel-subtitle"
+                    value={editingTravel.subtitle || ''}
+                    onChange={(e) => setEditingTravel({...editingTravel, subtitle: e.target.value})}
+                    className="border-2 border-watercolor-purple/20"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="travel-content" className="font-display text-watercolor-purple">Content</Label>
+                  <Textarea
+                    id="travel-content"
+                    value={editingTravel.content || ''}
+                    onChange={(e) => setEditingTravel({...editingTravel, content: e.target.value})}
+                    rows={8}
+                    className="border-2 border-watercolor-purple/20"
+                    placeholder="Use double line breaks to separate paragraphs"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={handleUpdateTravel}
+                    className="flex-1 bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white font-display"
+                  >
+                    Save Changes
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setEditingTravel(null)}
                     className="border-2 border-watercolor-purple/20 font-display"
                   >
                     Cancel
