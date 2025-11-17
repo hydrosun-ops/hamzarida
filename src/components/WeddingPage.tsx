@@ -12,7 +12,7 @@ export const WeddingPage = ({ children, className, background, backgroundMedia }
   return (
     <div
       className={cn(
-        "min-w-full h-screen snap-center flex items-center justify-center p-8 relative overflow-hidden",
+        "w-full h-screen snap-center flex items-center justify-center p-8 relative overflow-hidden",
         background || "bg-background",
         className
       )}
