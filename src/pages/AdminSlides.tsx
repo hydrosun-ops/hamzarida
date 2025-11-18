@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowLeft, Upload, Sparkles, Heart, Image } from "lucide-react";
+import { ArrowLeft, Upload, Sparkles, Heart, Image, Trash2 } from "lucide-react";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
 
 interface Slide {
@@ -207,6 +207,28 @@ const AdminSlides = () => {
     setEditingTravel(null);
   };
 
+  const handleDeleteSlide = async (slideId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!confirm("Are you sure you want to delete this slide?")) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from('wedding_slides')
+      .delete()
+      .eq('id', slideId);
+
+    if (error) {
+      toast.error("Failed to delete slide");
+      console.error(error);
+      return;
+    }
+
+    toast.success("Slide deleted successfully!");
+    fetchSlides();
+  };
+
   if (!isAdmin) {
     return null;
   }
@@ -239,13 +261,25 @@ const AdminSlides = () => {
               onClick={() => setEditingSlide(slide)}
             >
               <CardHeader>
-                <div className="text-4xl mb-2">{slide.icon_emoji}</div>
-                <CardTitle className="text-xl font-display text-watercolor-purple">
-                  Page {slide.page_number}
-                </CardTitle>
-                <CardDescription className="font-urdu text-lg">
-                  {slide.title}
-                </CardDescription>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-4xl mb-2">{slide.icon_emoji}</div>
+                    <CardTitle className="text-xl font-display text-watercolor-purple">
+                      Page {slide.page_number}
+                    </CardTitle>
+                    <CardDescription className="font-urdu text-lg">
+                      {slide.title}
+                    </CardDescription>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => handleDeleteSlide(slide.id, e)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground line-clamp-3">{slide.description}</p>
