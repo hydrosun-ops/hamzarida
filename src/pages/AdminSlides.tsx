@@ -229,6 +229,28 @@ const AdminSlides = () => {
     fetchSlides();
   };
 
+  const handleDeleteTravel = async (travelId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!confirm("Are you sure you want to delete this travel info section?")) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from('travel_info')
+      .delete()
+      .eq('id', travelId);
+
+    if (error) {
+      toast.error("Failed to delete travel info");
+      console.error(error);
+      return;
+    }
+
+    toast.success("Travel info deleted successfully!");
+    fetchTravelInfo();
+  };
+
   if (!isAdmin) {
     return null;
   }
@@ -325,7 +347,17 @@ const AdminSlides = () => {
                       )}
                     </div>
                   </div>
-                  <Sparkles className="w-5 h-5 text-watercolor-purple" />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => handleDeleteTravel(info.id, e)}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <Sparkles className="w-5 h-5 text-watercolor-purple" />
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4">
