@@ -11,7 +11,7 @@ interface EventCardProps {
 
 export const EventCard = ({ icon, title, date, time, venue, description }: EventCardProps) => {
   return (
-    <Card className="relative overflow-hidden bg-white/95 backdrop-blur-sm border-none shadow-2xl group hover:shadow-3xl transition-all duration-700">
+    <Card className="relative overflow-hidden bg-transparent border-none group transition-all duration-700">
       {/* Watercolor texture overlay */}
       <div className="absolute inset-0 opacity-5 mix-blend-multiply pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-watercolor-purple via-watercolor-magenta to-watercolor-orange" 
