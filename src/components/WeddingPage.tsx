@@ -28,6 +28,7 @@ export const WeddingPage = ({ children, className, background, backgroundMedia }
               loop
               muted
               playsInline
+              preload="auto"
             />
           ) : (
             <img 
