@@ -29,16 +29,16 @@ export const Countdown = ({ targetDate, eventName = "the wedding" }: CountdownPr
   }, [targetDate]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <h3 className="text-2xl font-serif text-center mb-6 text-watercolor-magenta">
+    <div className="w-full max-w-4xl mx-auto px-4">
+      <h3 className="text-xl md:text-2xl font-serif text-center mb-4 md:mb-6 text-watercolor-magenta">
         Countdown to {eventName}
       </h3>
       <div className="flex justify-center">
-        <Card className="p-8 text-center bg-gradient-to-br from-white/90 to-watercolor-lavender/20 backdrop-blur-sm border-watercolor-magenta/20 hover:shadow-xl transition-all duration-300 min-w-[200px]">
-          <div className="text-6xl md:text-7xl font-bold text-watercolor-magenta mb-3">
+        <Card className="p-6 md:p-8 text-center bg-gradient-to-br from-white/90 to-watercolor-lavender/20 backdrop-blur-sm border-watercolor-magenta/20 hover:shadow-xl transition-all duration-300 min-w-[160px] md:min-w-[200px]">
+          <div className="text-5xl md:text-6xl lg:text-7xl font-bold text-watercolor-magenta mb-2 md:mb-3">
             {timeLeft.days}
           </div>
-          <div className="text-lg md:text-xl text-muted-foreground">
+          <div className="text-base md:text-lg lg:text-xl text-muted-foreground">
             Days
           </div>
         </Card>

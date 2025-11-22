@@ -1,11 +1,31 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import karachiSkyline from "@/assets/karachi-skyline.webp";
 
 export const WatercolorBackground = () => {
+  const [backgroundUrl, setBackgroundUrl] = useState<string>(karachiSkyline);
+
+  useEffect(() => {
+    const fetchBackground = async () => {
+      const { data } = await supabase
+        .from('site_settings')
+        .select('setting_value')
+        .eq('setting_key', 'watercolor_background')
+        .maybeSingle();
+
+      if (data?.setting_value) {
+        setBackgroundUrl(data.setting_value);
+      }
+    };
+
+    fetchBackground();
+  }, []);
+
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden">
       {/* Animated watercolor painting */}
       <img
-        src={karachiSkyline}
+        src={backgroundUrl}
         alt=""
         className="absolute inset-0 w-full h-full object-cover opacity-[0.45] animate-fade-in"
         style={{

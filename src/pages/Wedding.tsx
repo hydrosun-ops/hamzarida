@@ -109,60 +109,60 @@ const Wedding = () => {
   };
   return <div className="relative w-full h-screen overflow-hidden">
       {/* Top scroll indicator */}
-      <div className={`fixed top-0 left-0 right-0 h-32 bg-gradient-to-b from-background/80 to-transparent pointer-events-none z-40 transition-opacity duration-300 ${currentPage === 0 ? 'opacity-0' : 'opacity-100'}`} />
+      <div className={`fixed top-0 left-0 right-0 h-24 md:h-32 bg-gradient-to-b from-background/80 to-transparent pointer-events-none z-40 transition-opacity duration-300 ${currentPage === 0 ? 'opacity-0' : 'opacity-100'}`} />
       
       {/* Bottom scroll indicator */}
-      <div className={`fixed bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background/80 to-transparent pointer-events-none z-40 transition-opacity duration-300 ${currentPage === totalPages - 1 ? 'opacity-0' : 'opacity-100'}`} />
+      <div className={`fixed bottom-0 left-0 right-0 h-24 md:h-32 bg-gradient-to-t from-background/80 to-transparent pointer-events-none z-40 transition-opacity duration-300 ${currentPage === totalPages - 1 ? 'opacity-0' : 'opacity-100'}`} />
       
       {/* Scroll hint - only show on first page */}
-      {currentPage === 0 && <div className="fixed bottom-24 left-8 z-40 animate-bounce">
+      {currentPage === 0 && <div className="fixed bottom-20 md:bottom-24 left-4 md:left-8 z-40 animate-bounce">
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
             
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
           </div>
         </div>}
       
-      <div className="fixed top-4 right-4 z-50 flex gap-2">
-        {isAdmin && <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="bg-white/90 backdrop-blur-sm hover:bg-white border border-watercolor-purple/20 text-watercolor-purple">
-            <Settings className="w-4 h-4 mr-2" />
-            Admin
+      <div className="fixed top-2 right-2 md:top-4 md:right-4 z-50 flex gap-1 md:gap-2">
+        {isAdmin && <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="bg-white/90 backdrop-blur-sm hover:bg-white border border-watercolor-purple/20 text-watercolor-purple text-xs md:text-sm px-2 md:px-3">
+            <Settings className="w-3 h-3 md:w-4 md:h-4 md:mr-2" />
+            <span className="hidden md:inline">Admin</span>
           </Button>}
-        <Button variant="ghost" size="sm" onClick={handleLogout} className="bg-white/90 backdrop-blur-sm hover:bg-white border border-watercolor-magenta/20 text-watercolor-magenta">
-          <LogOut className="w-4 h-4 mr-2" />
-          Exit
+        <Button variant="ghost" size="sm" onClick={handleLogout} className="bg-white/90 backdrop-blur-sm hover:bg-white border border-watercolor-magenta/20 text-watercolor-magenta text-xs md:text-sm px-2 md:px-3">
+          <LogOut className="w-3 h-3 md:w-4 md:h-4 md:mr-2" />
+          <span className="hidden md:inline">Exit</span>
         </Button>
       </div>
 
       <div ref={scrollRef} onScroll={handleScroll} className="overflow-y-scroll snap-y snap-mandatory hide-scrollbar h-full">
         {/* Page 1: Welcome - Always shown */}
         <WeddingPage background="bg-gradient-to-br from-watercolor-lavender/30 via-background to-watercolor-rose/20" backgroundMedia={slideBackgrounds[1]}>
-          <div className="space-y-8 animate-fade-in">
-            <Heart className="w-16 h-16 mx-auto text-watercolor-magenta opacity-80" />
-            <h1 className="text-6xl md:text-7xl font-serif font-bold text-watercolor-magenta leading-tight">
+          <div className="space-y-6 md:space-y-8 animate-fade-in">
+            <Heart className="w-12 h-12 md:w-16 md:h-16 mx-auto text-watercolor-magenta opacity-80" />
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-watercolor-magenta leading-tight px-4">
               {guestName ? `Welcome, ${guestName}!` : "You're Invited"}
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground font-light max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground font-light max-w-2xl mx-auto px-4">
               Join us for a celebration of love in the heart of Pakistan
             </p>
             
             {/* Countdown */}
-            <div className="pt-4 pb-6">
+            <div className="pt-3 pb-4 md:pt-4 md:pb-6">
               <Countdown targetDate={new Date('2026-03-25T19:00:00+05:00')} eventName="the wedding" />
             </div>
             
-            <div className="space-y-4">
-              <div className="text-lg text-foreground">
-                <p className="font-semibold text-2xl text-watercolor-purple mb-2">March 25 - 29, 2026</p>
-                <p className="text-muted-foreground">Optional Week-Long Trek: March 29 - April 5</p>
+            <div className="space-y-3 md:space-y-4">
+              <div className="text-base md:text-lg text-foreground px-4">
+                <p className="font-semibold text-xl md:text-2xl text-watercolor-purple mb-2">March 25 - 29, 2026</p>
+                <p className="text-muted-foreground text-sm md:text-base">Optional Week-Long Trek: March 29 - April 5</p>
               </div>
-              <div className="pt-6 flex flex-col sm:flex-row gap-4 justify-center">
-                <Button onClick={() => navigate('/rsvp')} size="lg" className="bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-500">
+              <div className="pt-4 md:pt-6 flex flex-col sm:flex-row gap-3 md:gap-4 justify-center px-4">
+                <Button onClick={() => navigate('/rsvp')} size="lg" className="bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white px-6 md:px-8 py-5 md:py-6 text-base md:text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-500">
                   RSVP by December 15th
                 </Button>
-                <Button onClick={() => navigate('/travel')} size="lg" variant="outline" className="border-2 border-watercolor-purple text-watercolor-purple hover:bg-watercolor-purple/10 px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-500">
-                  <Plane className="w-5 h-5 mr-2" />
+                <Button onClick={() => navigate('/travel')} size="lg" variant="outline" className="border-2 border-watercolor-purple text-watercolor-purple hover:bg-watercolor-purple/10 px-6 md:px-8 py-5 md:py-6 text-base md:text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-500">
+                  <Plane className="w-4 h-4 md:w-5 md:h-5 mr-2" />
                   Travel Info
                 </Button>
               </div>
@@ -172,10 +172,10 @@ const Wedding = () => {
 
         {/* Page 2: Dholki - March 25 */}
         {isInvitedTo('mehndi') && <WeddingPage background="bg-gradient-to-br from-watercolor-purple/20 to-background" backgroundMedia={slideBackgrounds[2]}>
-          <div className="space-y-8 animate-fade-in" style={{
+          <div className="space-y-6 md:space-y-8 animate-fade-in" style={{
           animationDelay: '0.2s'
         }}>
-            <h2 className="text-5xl font-serif font-bold text-watercolor-purple mb-12">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-purple mb-8 md:mb-12 px-4">
               Arrival Day
             </h2>
             <EventCard icon="🥁" date="March 25, 2025" title="Dholki Night" venue="Traditional Venue, Pakistan" time="Evening - 7:00 PM onwards" description="Begin our celebration with a traditional Dholki evening filled with music, dance, and joy. This intimate gathering will set the perfect tone for the festivities ahead." />
@@ -184,10 +184,10 @@ const Wedding = () => {
 
         {/* Page 3: Barat - March 26 */}
         {isInvitedTo('nikah') && <WeddingPage background="bg-gradient-to-br from-watercolor-rose/20 to-background" backgroundMedia={slideBackgrounds[3]}>
-          <div className="space-y-8 animate-fade-in" style={{
+          <div className="space-y-6 md:space-y-8 animate-fade-in" style={{
           animationDelay: '0.3s'
         }}>
-            <h2 className="text-5xl font-serif font-bold text-watercolor-magenta mb-12">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-magenta mb-8 md:mb-12 px-4">
               The Main Event
             </h2>
             <EventCard icon="💍" date="March 26, 2025" title="Barat Ceremony" venue="Grand Wedding Venue, Pakistan" time="Evening - 6:00 PM" description="The main wedding ceremony where families unite. Witness the beautiful traditions, vibrant colors, and heartfelt moments as we begin our journey together." />
@@ -196,13 +196,13 @@ const Wedding = () => {
 
         {/* Page 4: Village Reception - March 27 */}
         {isInvitedTo('haldi') && <WeddingPage background="bg-gradient-to-br from-watercolor-orange/20 to-background" backgroundMedia={slideBackgrounds[4]}>
-          <div className="space-y-8 animate-fade-in" style={{
+          <div className="space-y-6 md:space-y-8 animate-fade-in" style={{
           animationDelay: '0.4s'
         }}>
-            <h2 className="text-5xl font-serif font-bold text-watercolor-orange mb-12">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-orange mb-8 md:mb-12 px-4">
               Double Celebration
             </h2>
-            <div className="grid gap-6 max-w-3xl mx-auto">
+            <div className="grid gap-4 md:gap-6 max-w-3xl mx-auto px-4">
               <EventCard icon="🌾" date="March 27, 2025" title="Village Reception" venue="Family Village Home" time="Afternoon - 2:00 PM" description="Experience authentic Pakistani village hospitality with a traditional reception celebrating with our extended family and community." />
               <EventCard icon="🎉" date="March 27, 2025" title="Warehouse DJ Party" venue="Warehouse Venue" time="Evening - 9:00 PM" description="Dance the night away at our modern celebration. A perfect blend of traditional and contemporary music to keep the energy high!" />
             </div>
@@ -211,10 +211,10 @@ const Wedding = () => {
 
         {/* Page 5: Formal Reception - March 28 */}
         {isInvitedTo('reception') && <WeddingPage background="bg-gradient-to-br from-watercolor-gold/20 to-background" backgroundMedia={slideBackgrounds[5]}>
-          <div className="space-y-8 animate-fade-in" style={{
+          <div className="space-y-6 md:space-y-8 animate-fade-in" style={{
           animationDelay: '0.5s'
         }}>
-            <h2 className="text-5xl font-serif font-bold text-watercolor-gold mb-12">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-gold mb-8 md:mb-12 px-4">
               Grand Finale
             </h2>
             <EventCard icon="✨" date="March 28, 2025" title="Formal Reception" venue="Luxury Banquet Hall, Pakistan" time="Evening - 7:00 PM" description="Join us for an elegant evening of dinner, speeches, and celebration. Dress in your finest as we conclude our wedding festivities in style." />
@@ -223,16 +223,16 @@ const Wedding = () => {
 
         {/* Page 6: Optional Trek */}
         {isInvitedTo('trek') && <WeddingPage background="bg-gradient-to-br from-watercolor-lavender/20 to-background" backgroundMedia={slideBackgrounds[6]}>
-          <div className="space-y-8 animate-fade-in" style={{
+          <div className="space-y-6 md:space-y-8 animate-fade-in" style={{
           animationDelay: '0.6s'
         }}>
-            <Mountain className="w-16 h-16 mx-auto text-watercolor-purple opacity-80" />
-            <h2 className="text-5xl font-serif font-bold text-watercolor-purple mb-8">
+            <Mountain className="w-12 h-12 md:w-16 md:h-16 mx-auto text-watercolor-purple opacity-80" />
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-purple mb-6 md:mb-8 px-4">
               Adventure Awaits
             </h2>
             <EventCard icon="🏔️" date="March 29 - April 5, 2025" title="Week-Long Pakistan Trek" venue="Northern Pakistan" time="7 Days of Adventure" description="Extend your stay and explore the breathtaking landscapes of northern Pakistan. Trek through mountain valleys, visit ancient villages, and experience the natural beauty of the region. Departure from Lahore on March 29th." />
-            <div className="pt-6">
-              <Button onClick={() => navigate('/rsvp')} size="lg" variant="secondary" className="px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all">
+            <div className="pt-4 md:pt-6 px-4">
+              <Button onClick={() => navigate('/rsvp')} size="lg" variant="secondary" className="px-6 md:px-8 py-5 md:py-6 text-base md:text-lg rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto">
                 Include Trek in Your RSVP
               </Button>
             </div>
