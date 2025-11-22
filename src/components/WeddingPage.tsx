@@ -29,12 +29,17 @@ export const WeddingPage = ({ children, className, background, backgroundMedia }
               muted
               playsInline
               preload="auto"
+              // @ts-ignore - fetchpriority is a valid HTML attribute
+              fetchpriority="high"
             />
           ) : (
             <img 
               src={backgroundMedia}
               alt="Background"
               className="w-full h-full object-cover opacity-30"
+              loading="eager"
+              // @ts-ignore - fetchpriority is a valid HTML attribute
+              fetchpriority="high"
             />
           )}
         </div>
