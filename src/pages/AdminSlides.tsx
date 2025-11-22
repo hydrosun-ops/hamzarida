@@ -46,8 +46,11 @@ const AdminSlides = () => {
   });
   const [editingTravel, setEditingTravel] = useState<TravelInfo | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [globalBackground, setGlobalBackground] = useState<string>('');
+  const [editingGlobalBg, setEditingGlobalBg] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const newSlideFileInputRef = useRef<HTMLInputElement>(null);
+  const globalBgInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -91,6 +94,7 @@ const AdminSlides = () => {
       setIsAdmin(true);
       fetchSlides();
       fetchTravelInfo();
+      fetchGlobalBackground();
     };
 
     checkAdminAccess();
@@ -124,6 +128,21 @@ const AdminSlides = () => {
     }
 
     setTravelInfo(data || []);
+  };
+
+  const fetchGlobalBackground = async () => {
+    const { data, error } = await supabase
+      .from('site_settings')
+      .select('setting_value')
+      .eq('setting_key', 'watercolor_background')
+      .maybeSingle();
+
+    if (error) {
+      console.error("Failed to load global background", error);
+      return;
+    }
+
+    setGlobalBackground(data?.setting_value || '');
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -335,6 +354,60 @@ const AdminSlides = () => {
     });
   };
 
+  const handleGlobalBgUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || !event.target.files[0]) return;
+    
+    const file = event.target.files[0];
+    setUploading(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `global-bg-${Date.now()}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError } = await supabase.storage
+        .from('slide-backgrounds')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('slide-backgrounds')
+        .getPublicUrl(filePath);
+
+      setGlobalBackground(publicUrl);
+      toast.success("Background uploaded successfully!");
+    } catch (error: any) {
+      toast.error("Failed to upload background");
+      console.error(error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSaveGlobalBackground = async () => {
+    const { error } = await supabase
+      .from('site_settings')
+      .upsert({
+        setting_key: 'watercolor_background',
+        setting_value: globalBackground,
+      }, {
+        onConflict: 'setting_key'
+      });
+
+    if (error) {
+      toast.error("Failed to save global background");
+      console.error(error);
+      return;
+    }
+
+    toast.success("Global background updated successfully!");
+    setEditingGlobalBg(false);
+  };
+
   if (!isAdmin) {
     return null;
   }
@@ -354,6 +427,14 @@ const AdminSlides = () => {
             Back to Admin
           </Button>
           <div className="flex items-center gap-4">
+            <Button
+              onClick={() => setEditingGlobalBg(true)}
+              variant="outline"
+              className="border-watercolor-orange text-watercolor-orange hover:bg-watercolor-orange/10"
+            >
+              <Image className="w-4 h-4 mr-2" />
+              Global Background
+            </Button>
             <Button
               onClick={() => setCreatingSlide(true)}
               className="bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white"
@@ -837,6 +918,95 @@ const AdminSlides = () => {
                   <Button
                     variant="outline"
                     onClick={() => setCreatingSlide(false)}
+                    className="border-2 border-watercolor-purple/20 font-display"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {editingGlobalBg && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <Card className="w-full max-w-2xl bg-white/98">
+              <CardHeader className="border-b-2 border-watercolor-purple/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-2xl font-display text-watercolor-magenta flex items-center gap-2">
+                      <Image className="w-6 h-6" />
+                      Global Website Background
+                    </CardTitle>
+                    <CardDescription>Update the watercolor background image for the entire site</CardDescription>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setEditingGlobalBg(false)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    ✕
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-6">
+                <div className="space-y-2">
+                  <Label className="font-display text-watercolor-purple">Background Image</Label>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      onClick={() => globalBgInputRef.current?.click()}
+                      disabled={uploading}
+                      className="bg-gradient-to-r from-watercolor-purple to-watercolor-magenta hover:from-watercolor-magenta hover:to-watercolor-purple text-white"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {uploading ? "Uploading..." : "Upload Image"}
+                    </Button>
+                    
+                    <Input
+                      ref={globalBgInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleGlobalBgUpload}
+                      className="hidden"
+                    />
+                  </div>
+
+                  <div className="text-xs text-muted-foreground">
+                    Supports: Images (JPG, PNG, WEBP)
+                    <br />
+                    Or paste an image URL below:
+                  </div>
+                  
+                  <Input
+                    value={globalBackground}
+                    onChange={(e) => setGlobalBackground(e.target.value)}
+                    placeholder="https://example.com/background.jpg"
+                    className="border-2 border-watercolor-purple/20"
+                  />
+                  
+                  {globalBackground && (
+                    <div className="mt-2 rounded-lg overflow-hidden h-48 border-2 border-watercolor-purple/20">
+                      <img 
+                        src={globalBackground} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={handleSaveGlobalBackground}
+                    className="flex-1 bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white font-display"
+                  >
+                    Save Background
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setEditingGlobalBg(false)}
                     className="border-2 border-watercolor-purple/20 font-display"
                   >
                     Cancel

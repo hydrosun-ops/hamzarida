@@ -29,36 +29,36 @@ export const EventCard = ({ icon, title, date, time, venue, description }: Event
         }}
       />
       
-      <CardContent className="relative p-10 space-y-6">
+      <CardContent className="relative p-6 md:p-10 space-y-4 md:space-y-6">
         {icon && (
-          <div className="text-6xl mb-4 opacity-80 transition-transform duration-500 group-hover:scale-110">
+          <div className="text-4xl md:text-6xl mb-3 md:mb-4 opacity-80 transition-transform duration-500 group-hover:scale-110">
             {icon}
           </div>
         )}
         
-        <h3 className="text-3xl font-serif font-bold text-watercolor-magenta mb-4 tracking-tight">
+        <h3 className="text-2xl md:text-3xl font-serif font-bold text-watercolor-magenta mb-3 md:mb-4 tracking-tight">
           {title}
         </h3>
         
         {/* Elegant divider */}
-        <div className="h-px w-16 bg-gradient-to-r from-watercolor-magenta/50 to-transparent mb-6" />
+        <div className="h-px w-12 md:w-16 bg-gradient-to-r from-watercolor-magenta/50 to-transparent mb-4 md:mb-6" />
         
-        <div className="space-y-3 text-base">
-          <div className="flex items-start gap-3">
-            <span className="text-watercolor-purple font-medium mt-0.5">📅</span>
+        <div className="space-y-2 md:space-y-3 text-sm md:text-base">
+          <div className="flex items-start gap-2 md:gap-3">
+            <span className="text-watercolor-purple font-medium mt-0.5 text-lg md:text-xl">📅</span>
             <p className="text-foreground/80">{date}</p>
           </div>
-          <div className="flex items-start gap-3">
-            <span className="text-watercolor-orange font-medium mt-0.5">🕐</span>
+          <div className="flex items-start gap-2 md:gap-3">
+            <span className="text-watercolor-orange font-medium mt-0.5 text-lg md:text-xl">🕐</span>
             <p className="text-foreground/80">{time}</p>
           </div>
-          <div className="flex items-start gap-3">
-            <span className="text-watercolor-magenta font-medium mt-0.5">📍</span>
+          <div className="flex items-start gap-2 md:gap-3">
+            <span className="text-watercolor-magenta font-medium mt-0.5 text-lg md:text-xl">📍</span>
             <p className="text-foreground/80">{venue}</p>
           </div>
         </div>
         
-        <p className="text-muted-foreground leading-relaxed pt-4 border-t border-border/30">
+        <p className="text-muted-foreground leading-relaxed pt-3 md:pt-4 border-t border-border/30 text-sm md:text-base">
           {description}
         </p>
       </CardContent>
