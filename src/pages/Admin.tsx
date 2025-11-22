@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Users, ArrowLeft, Sparkles, Download, Edit } from "lucide-react";
+import { Users, ArrowLeft, Sparkles, Download, Edit, Upload } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
 import { Checkbox } from "@/components/ui/checkbox";
 import { parsePhoneNumber, formatIncompletePhoneNumber } from 'libphonenumber-js';
+import * as XLSX from 'xlsx';
 
 interface Guest {
   id: string;
@@ -45,6 +46,7 @@ const Admin = () => {
     reception: true, // Formal Reception
     trek: true,
   });
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -218,6 +220,139 @@ const Admin = () => {
       reception: true,
       trek: true,
     });
+  };
+
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet) as Array<{
+        Name?: string;
+        Phone?: string;
+        Email?: string;
+      }>;
+
+      if (jsonData.length === 0) {
+        toast.error("No data found in the Excel file");
+        return;
+      }
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const row of jsonData) {
+        try {
+          const name = row.Name?.toString().trim();
+          const phone = row.Phone?.toString().trim();
+          const email = row.Email?.toString().trim();
+
+          if (!name || !phone) {
+            errorCount++;
+            continue;
+          }
+
+          // Format phone number
+          let formattedPhone = phone;
+          try {
+            const phoneNumber = parsePhoneNumber(phone, 'PK');
+            if (phoneNumber) {
+              formattedPhone = phoneNumber.formatInternational();
+            }
+          } catch {
+            formattedPhone = formatIncompletePhoneNumber(phone);
+          }
+
+          // Check if guest already exists
+          const { data: existingGuest } = await supabase
+            .from('guests')
+            .select('id')
+            .eq('phone', formattedPhone)
+            .maybeSingle();
+
+          if (existingGuest) {
+            errorCount++;
+            continue;
+          }
+
+          // Insert guest
+          const { data: guestData, error: guestError } = await supabase
+            .from('guests')
+            .insert([{ 
+              name, 
+              phone: formattedPhone,
+              email: email || null
+            }])
+            .select()
+            .single();
+
+          if (guestError) {
+            errorCount++;
+            continue;
+          }
+
+          // Insert default event invitations (all events)
+          const invitationsToInsert = ['mehndi', 'nikah', 'haldi', 'reception', 'trek'].map(eventType => ({
+            guest_id: guestData.id,
+            event_type: eventType as 'welcome' | 'mehndi' | 'haldi' | 'nikah' | 'reception' | 'trek',
+            invited: true,
+          }));
+
+          await supabase
+            .from('event_invitations')
+            .insert(invitationsToInsert);
+
+          successCount++;
+        } catch (error) {
+          errorCount++;
+          console.error('Error importing row:', error);
+        }
+      }
+
+      if (successCount > 0) {
+        toast.success(`Successfully imported ${successCount} guest${successCount > 1 ? 's' : ''}`);
+        fetchGuests();
+      }
+      
+      if (errorCount > 0) {
+        toast.error(`Failed to import ${errorCount} guest${errorCount > 1 ? 's' : ''} (duplicates or invalid data)`);
+      }
+
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
+      toast.error("Failed to read Excel file");
+      console.error(error);
+    }
+  };
+
+  const downloadTemplate = () => {
+    // Create template data
+    const templateData = [
+      { Name: 'John Doe', Phone: '+92 300 1234567', Email: 'john@example.com' },
+      { Name: 'Jane Smith', Phone: '+92 321 9876543', Email: 'jane@example.com' }
+    ];
+
+    // Create workbook and worksheet
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Guest List');
+
+    // Set column widths
+    ws['!cols'] = [
+      { wch: 20 }, // Name
+      { wch: 20 }, // Phone
+      { wch: 30 }  // Email
+    ];
+
+    // Download
+    XLSX.writeFile(wb, 'wedding-guest-import-template.xlsx');
+    toast.success('Template downloaded! Fill it with your guest data.');
   };
 
   const handleAddGuest = async (e: React.FormEvent) => {
@@ -516,14 +651,40 @@ const Admin = () => {
                     {guests.length} guest{guests.length !== 1 ? 's' : ''} invited • {guests.filter(g => g.rsvp?.attending).length} confirmed attending
                   </CardDescription>
                 </div>
-                <Button
-                  onClick={exportToExcel}
-                  variant="outline"
-                  className="border-watercolor-purple text-watercolor-purple hover:bg-watercolor-purple/10"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Export to Excel
-                </Button>
+                <div className="flex gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".xlsx,.xls"
+                    onChange={handleImportExcel}
+                    className="hidden"
+                  />
+                  <Button
+                    onClick={downloadTemplate}
+                    variant="outline"
+                    size="sm"
+                    className="border-watercolor-orange text-watercolor-orange hover:bg-watercolor-orange/10"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Template
+                  </Button>
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="border-watercolor-magenta text-watercolor-magenta hover:bg-watercolor-magenta/10"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Import Excel
+                  </Button>
+                  <Button
+                    onClick={exportToExcel}
+                    variant="outline"
+                    className="border-watercolor-purple text-watercolor-purple hover:bg-watercolor-purple/10"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Export
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
