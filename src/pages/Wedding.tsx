@@ -194,18 +194,12 @@ const Wedding = () => {
           </div>
         </WeddingPage>}
 
-        {/* Page 4: Village Reception - March 27 */}
+        {/* Page 4: Warehouse DJ Party - March 27 */}
         {isInvitedTo('haldi') && <WeddingPage background="bg-gradient-to-br from-watercolor-orange/20 to-background" backgroundMedia={slideBackgrounds[4]}>
           <div className="space-y-6 md:space-y-8 animate-fade-in" style={{
           animationDelay: '0.4s'
         }}>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-orange mb-8 md:mb-12 px-4">
-              Double Celebration
-            </h2>
-            <div className="grid gap-4 md:gap-6 max-w-3xl mx-auto px-4">
-              <EventCard icon="🌾" date="March 27, 2025" title="Village Reception" venue="Family Village Home" time="Afternoon - 2:00 PM" description="Experience authentic Pakistani village hospitality with a traditional reception celebrating with our extended family and community." />
-              <EventCard icon="🎉" date="March 27, 2025" title="Warehouse DJ Party" venue="Warehouse Venue" time="Evening - 9:00 PM" description="Dance the night away at our modern celebration. A perfect blend of traditional and contemporary music to keep the energy high!" />
-            </div>
+            <EventCard icon="🎉" date="March 27, 2025" title="Warehouse DJ Party" venue="Warehouse Venue" time="Evening - 9:00 PM" description="Dance the night away at our modern celebration. A perfect blend of traditional and contemporary music to keep the energy high!" />
           </div>
         </WeddingPage>}
 
