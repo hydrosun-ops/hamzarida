@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowLeft, Upload, Sparkles, Heart, Image, Trash2 } from "lucide-react";
+import { ArrowLeft, Upload, Sparkles, Heart, Image, Trash2, Plane } from "lucide-react";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
 
 interface Slide {
@@ -502,8 +502,21 @@ const AdminSlides = () => {
           ))}
         </div>
 
-        <div className="space-y-6 mb-12">
-          <h2 className="text-3xl font-serif text-watercolor-magenta">Travel Information</h2>
+        <div className="space-y-6 mb-12 mt-12">
+          <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-serif text-watercolor-magenta flex items-center gap-3">
+              <Plane className="w-8 h-8" />
+              Travel Information
+            </h2>
+            <Button
+              onClick={() => navigate('/travel')}
+              variant="outline"
+              className="border-watercolor-purple text-watercolor-purple hover:bg-watercolor-purple/10"
+            >
+              Preview Travel Page
+            </Button>
+          </div>
+          <p className="text-muted-foreground">Click on any section to edit its content</p>
           {travelInfo.map((info) => (
             <Card
               key={info.id}
