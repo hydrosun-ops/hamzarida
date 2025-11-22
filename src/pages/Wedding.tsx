@@ -143,7 +143,7 @@ const Wedding = () => {
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-watercolor-magenta leading-tight px-4">
               {guestName ? `Welcome, ${guestName}!` : "You're Invited"}
             </h1>
-            <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground font-light max-w-2xl mx-auto px-4">
+            <p className="text-xl md:text-2xl lg:text-3xl text-foreground/80 font-light max-w-2xl mx-auto px-4 leading-relaxed">
               Join us for a celebration of love in the heart of Pakistan
             </p>
             
@@ -153,15 +153,15 @@ const Wedding = () => {
             </div>
             
             <div className="space-y-3 md:space-y-4">
-              <div className="text-base md:text-lg text-foreground px-4">
-                <p className="font-semibold text-xl md:text-2xl text-watercolor-purple mb-2">March 25 - 29, 2026</p>
-                <p className="text-muted-foreground text-sm md:text-base">Optional Week-Long Trek: March 29 - April 5</p>
+              <div className="text-lg md:text-xl text-foreground px-4">
+                <p className="font-semibold text-2xl md:text-3xl text-watercolor-purple mb-2">March 25 - 29, 2026</p>
+                <p className="text-foreground/70 text-base md:text-lg">Optional Week-Long Trek: March 29 - April 5</p>
               </div>
               <div className="pt-4 md:pt-6 flex flex-col sm:flex-row gap-3 md:gap-4 justify-center px-4">
-                <Button onClick={() => navigate('/rsvp')} size="lg" className="bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white px-6 md:px-8 py-5 md:py-6 text-base md:text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-500">
+                <Button onClick={() => navigate('/rsvp')} size="lg" className="bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white px-6 md:px-8 py-5 md:py-6 text-lg md:text-xl rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-500 font-semibold">
                   RSVP by December 15th
                 </Button>
-                <Button onClick={() => navigate('/travel')} size="lg" variant="outline" className="border-2 border-watercolor-purple text-watercolor-purple hover:bg-watercolor-purple/10 px-6 md:px-8 py-5 md:py-6 text-base md:text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-500">
+                <Button onClick={() => navigate('/travel')} size="lg" variant="outline" className="border-2 border-watercolor-purple text-watercolor-purple hover:bg-watercolor-purple/10 hover:border-watercolor-purple/80 px-6 md:px-8 py-5 md:py-6 text-lg md:text-xl rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-500 font-semibold">
                   <Plane className="w-4 h-4 md:w-5 md:h-5 mr-2" />
                   Travel Info
                 </Button>
