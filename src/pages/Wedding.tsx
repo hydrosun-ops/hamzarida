@@ -234,7 +234,11 @@ const Wedding = () => {
         </WeddingPage>}
       </div>
 
-      
+      <Navigation 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onNavigate={handleNavigate}
+      />
     </div>;
 };
 export default Wedding;
