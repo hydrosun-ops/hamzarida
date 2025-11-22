@@ -119,6 +119,7 @@ export type Database = {
           plus_one: boolean | null
           plus_one_name: string | null
           updated_at: string | null
+          visa_needed: boolean | null
         }
         Insert: {
           attending: boolean
@@ -130,6 +131,7 @@ export type Database = {
           plus_one?: boolean | null
           plus_one_name?: string | null
           updated_at?: string | null
+          visa_needed?: boolean | null
         }
         Update: {
           attending?: boolean
@@ -141,6 +143,7 @@ export type Database = {
           plus_one?: boolean | null
           plus_one_name?: string | null
           updated_at?: string | null
+          visa_needed?: boolean | null
         }
         Relationships: [
           {

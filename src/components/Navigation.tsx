@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronUp, ChevronDown, Heart } from "lucide-react";
+import { ChevronUp, ChevronDown, Heart, Plane } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface NavigationProps {
@@ -49,15 +49,26 @@ export const Navigation = ({ currentPage, totalPages, onNavigate }: NavigationPr
         </Button>
       </div>
 
-      {/* RSVP Button */}
-      <Button
-        onClick={() => navigate('/rsvp')}
-        size="lg"
-        className="bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white px-6 md:px-8 py-4 md:py-5 text-base md:text-lg rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-500 font-semibold"
-      >
-        <Heart className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-        RSVP Now
-      </Button>
+      {/* Action Buttons */}
+      <div className="flex gap-3">
+        <Button
+          onClick={() => navigate('/rsvp')}
+          size="lg"
+          className="bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white px-4 md:px-6 py-3 md:py-4 text-sm md:text-base rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-500 font-semibold"
+        >
+          <Heart className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+          RSVP
+        </Button>
+        <Button
+          onClick={() => navigate('/travel')}
+          size="lg"
+          variant="outline"
+          className="border-2 border-watercolor-purple text-watercolor-purple hover:bg-watercolor-purple/10 hover:border-watercolor-purple/80 px-4 md:px-6 py-3 md:py-4 text-sm md:text-base rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-500 font-semibold bg-background/95 backdrop-blur-lg"
+        >
+          <Plane className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+          Travel Info
+        </Button>
+      </div>
     </div>
   );
 };
