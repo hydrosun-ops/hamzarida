@@ -12,7 +12,7 @@ export const Navigation = ({ currentPage, totalPages, onNavigate }: NavigationPr
   const navigate = useNavigate();
   
   return (
-    <div className="fixed bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 md:gap-4 animate-fade-in px-4">
+    <div className="fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center gap-3 md:gap-4 animate-fade-in px-4 w-full max-w-7xl">
       {/* RSVP Button */}
       <Button
         onClick={() => navigate('/rsvp')}
