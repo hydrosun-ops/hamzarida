@@ -157,15 +157,6 @@ const Wedding = () => {
                 <p className="font-semibold text-2xl md:text-3xl text-watercolor-purple mb-2">March 25 - 29, 2026</p>
                 <p className="text-foreground/70 text-base md:text-lg">Optional Week-Long Trek: March 29 - April 5</p>
               </div>
-              <div className="pt-4 md:pt-6 flex flex-col sm:flex-row gap-3 md:gap-4 justify-center px-4">
-                <Button onClick={() => navigate('/rsvp')} size="lg" className="bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white px-6 md:px-8 py-5 md:py-6 text-lg md:text-xl rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-500 font-semibold">
-                  RSVP by December 15th
-                </Button>
-                <Button onClick={() => navigate('/travel')} size="lg" variant="outline" className="border-2 border-watercolor-purple text-watercolor-purple hover:bg-watercolor-purple/10 hover:border-watercolor-purple/80 px-6 md:px-8 py-5 md:py-6 text-lg md:text-xl rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-500 font-semibold">
-                  <Plane className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-                  Travel Info
-                </Button>
-              </div>
             </div>
           </div>
         </WeddingPage>
