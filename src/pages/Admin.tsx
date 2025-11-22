@@ -18,6 +18,7 @@ interface Guest {
   name: string;
   phone: string;
   email: string | null;
+  category: string | null;
   rsvp?: {
     attending: boolean;
     plus_one: boolean | null;
@@ -35,6 +36,7 @@ const Admin = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(false);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -123,6 +125,7 @@ const Admin = () => {
     // Create CSV content
     const headers = [
       'Name',
+      'Category',
       'Phone',
       'Email',
       'RSVP Status',
@@ -140,6 +143,7 @@ const Admin = () => {
       
       return [
         guest.name,
+        guest.category || '',
         guest.phone,
         guest.email || '',
         guest.rsvp ? (guest.rsvp.attending ? 'Attending' : 'Not Attending') : 'No Response',
@@ -179,6 +183,7 @@ const Admin = () => {
     setName(guest.name);
     setPhone(guest.phone);
     setEmail(guest.email || "");
+    setCategory(guest.category || "");
     
     // Fetch current event invitations for this guest
     const fetchInvitations = async () => {
@@ -213,6 +218,7 @@ const Admin = () => {
     setName("");
     setPhone("");
     setEmail("");
+    setCategory("");
     setEventInvitations({
       mehndi: true,
       nikah: true,
@@ -232,6 +238,7 @@ const Admin = () => {
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet) as Array<{
         Name?: string;
+        Category?: string;
         Phone?: string;
         Email?: string;
       }>;
@@ -247,6 +254,7 @@ const Admin = () => {
       for (const row of jsonData) {
         try {
           const name = row.Name?.toString().trim();
+          const category = row.Category?.toString().trim();
           const phone = row.Phone?.toString().trim();
           const email = row.Email?.toString().trim();
 
@@ -283,6 +291,7 @@ const Admin = () => {
             .from('guests')
             .insert([{ 
               name, 
+              category: category || null,
               phone: formattedPhone,
               email: email || null
             }])
@@ -334,8 +343,8 @@ const Admin = () => {
   const downloadTemplate = () => {
     // Create template data
     const templateData = [
-      { Name: 'John Doe', Phone: '+92 300 1234567', Email: 'john@example.com' },
-      { Name: 'Jane Smith', Phone: '+92 321 9876543', Email: 'jane@example.com' }
+      { Name: 'John Doe', Category: 'Family', Phone: '+92 300 1234567', Email: 'john@example.com' },
+      { Name: 'Jane Smith', Category: 'Friend', Phone: '+92 321 9876543', Email: 'jane@example.com' }
     ];
 
     // Create workbook and worksheet
@@ -346,6 +355,7 @@ const Admin = () => {
     // Set column widths
     ws['!cols'] = [
       { wch: 20 }, // Name
+      { wch: 15 }, // Category
       { wch: 20 }, // Phone
       { wch: 30 }  // Email
     ];
@@ -379,7 +389,8 @@ const Admin = () => {
           .update({ 
             name, 
             phone: formattedPhone,
-            email 
+            email,
+            category 
           })
           .eq('id', editingGuestId);
 
@@ -414,7 +425,8 @@ const Admin = () => {
           .insert([{ 
             name, 
             phone: formattedPhone,
-            email 
+            email,
+            category 
           }])
           .select()
           .single();
@@ -445,6 +457,7 @@ const Admin = () => {
       setName("");
       setPhone("");
       setEmail("");
+      setCategory("");
       setEventInvitations({
         mehndi: true,
         nikah: true,
@@ -536,6 +549,17 @@ const Admin = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category (Optional)</Label>
+                  <Input
+                    id="category"
+                    type="text"
+                    placeholder="Family, Friend, Colleague, etc."
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">Used for organizing guests (e.g., Family, Friends, Colleagues)</p>
                 </div>
                 
                 <div className="space-y-3 pt-2">
@@ -693,6 +717,7 @@ const Admin = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="sticky top-0 bg-background">Name</TableHead>
+                      <TableHead className="sticky top-0 bg-background">Category</TableHead>
                       <TableHead className="sticky top-0 bg-background">Phone</TableHead>
                       <TableHead className="sticky top-0 bg-background">RSVP Status</TableHead>
                       <TableHead className="sticky top-0 bg-background">Plus One</TableHead>
@@ -706,6 +731,15 @@ const Admin = () => {
                     {guests.map((guest) => (
                       <TableRow key={guest.id}>
                         <TableCell className="font-medium">{guest.name}</TableCell>
+                        <TableCell className="text-sm">
+                          {guest.category ? (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-watercolor-purple/10 text-watercolor-purple">
+                              {guest.category}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">-</span>
+                          )}
+                        </TableCell>
                         <TableCell className="text-muted-foreground text-sm">{guest.phone}</TableCell>
                         <TableCell>
                           {guest.rsvp ? (
