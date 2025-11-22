@@ -178,7 +178,7 @@ const Wedding = () => {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-purple mb-8 md:mb-12 px-4">
               Arrival Day
             </h2>
-            <EventCard icon="🥁" date="March 25, 2025" title="Dholki Night" venue="Traditional Venue, Pakistan" time="Evening - 7:00 PM onwards" description="Begin our celebration with a traditional Dholki evening filled with music, dance, and joy. This intimate gathering will set the perfect tone for the festivities ahead." />
+            <EventCard date="March 25, 2025" title="Dholki Night" venue="Traditional Venue, Pakistan" time="Evening - 7:00 PM onwards" description="Begin our celebration with a traditional Dholki evening filled with music, dance, and joy. This intimate gathering will set the perfect tone for the festivities ahead." />
           </div>
         </WeddingPage>}
 
@@ -190,7 +190,7 @@ const Wedding = () => {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-magenta mb-8 md:mb-12 px-4">
               The Main Event
             </h2>
-            <EventCard icon="💍" date="March 26, 2025" title="Barat Ceremony" venue="Grand Wedding Venue, Pakistan" time="Evening - 6:00 PM" description="The main wedding ceremony where families unite. Witness the beautiful traditions, vibrant colors, and heartfelt moments as we begin our journey together." />
+            <EventCard date="March 26, 2025" title="Barat Ceremony" venue="Grand Wedding Venue, Pakistan" time="Evening - 6:00 PM" description="The main wedding ceremony where families unite. Witness the beautiful traditions, vibrant colors, and heartfelt moments as we begin our journey together." />
           </div>
         </WeddingPage>}
 
@@ -199,7 +199,7 @@ const Wedding = () => {
           <div className="space-y-6 md:space-y-8 animate-fade-in" style={{
           animationDelay: '0.4s'
         }}>
-            <EventCard icon="🎉" date="March 27, 2025" title="Warehouse DJ Party" venue="Warehouse Venue" time="Evening - 9:00 PM" description="Dance the night away at our modern celebration. A perfect blend of traditional and contemporary music to keep the energy high!" />
+            <EventCard date="March 27, 2025" title="Warehouse DJ Party" venue="Warehouse Venue" time="Evening - 9:00 PM" description="Dance the night away at our modern celebration. A perfect blend of traditional and contemporary music to keep the energy high!" />
           </div>
         </WeddingPage>}
 
@@ -211,7 +211,7 @@ const Wedding = () => {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-gold mb-8 md:mb-12 px-4">
               Grand Finale
             </h2>
-            <EventCard icon="✨" date="March 28, 2025" title="Formal Reception" venue="Luxury Banquet Hall, Pakistan" time="Evening - 7:00 PM" description="Join us for an elegant evening of dinner, speeches, and celebration. Dress in your finest as we conclude our wedding festivities in style." />
+            <EventCard date="March 28, 2025" title="Formal Reception" venue="Luxury Banquet Hall, Pakistan" time="Evening - 7:00 PM" description="Join us for an elegant evening of dinner, speeches, and celebration. Dress in your finest as we conclude our wedding festivities in style." />
           </div>
         </WeddingPage>}
 
@@ -224,7 +224,7 @@ const Wedding = () => {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-purple mb-6 md:mb-8 px-4">
               Adventure Awaits
             </h2>
-            <EventCard icon="🏔️" date="March 29 - April 5, 2025" title="Week-Long Pakistan Trek" venue="Northern Pakistan" time="7 Days of Adventure" description="Extend your stay and explore the breathtaking landscapes of northern Pakistan. Trek through mountain valleys, visit ancient villages, and experience the natural beauty of the region. Departure from Lahore on March 29th." />
+            <EventCard date="March 29 - April 5, 2025" title="Week-Long Pakistan Trek" venue="Northern Pakistan" time="7 Days of Adventure" description="Extend your stay and explore the breathtaking landscapes of northern Pakistan. Trek through mountain valleys, visit ancient villages, and experience the natural beauty of the region. Departure from Lahore on March 29th." />
             <div className="pt-4 md:pt-6 px-4">
               <Button onClick={() => navigate('/rsvp')} size="lg" variant="secondary" className="px-6 md:px-8 py-5 md:py-6 text-base md:text-lg rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto">
                 Include Trek in Your RSVP
