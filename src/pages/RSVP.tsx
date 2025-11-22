@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Heart, ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { Heart, ArrowLeft, Plus, Trash2, Plane } from "lucide-react";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
 
 interface FamilyMember {
@@ -325,6 +325,18 @@ const RSVP = () => {
                 disabled={loading}
               >
                 {loading ? "Submitting..." : existingRsvp ? "Update RSVP" : "Submit RSVP"}
+              </Button>
+            </div>
+
+            <div className="pt-4 text-center">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/travel')}
+                className="w-full border-2 border-watercolor-purple text-watercolor-purple hover:bg-watercolor-purple/10 py-6 text-lg"
+              >
+                <Plane className="w-5 h-5 mr-2" />
+                View Travel Information
               </Button>
             </div>
           </form>
