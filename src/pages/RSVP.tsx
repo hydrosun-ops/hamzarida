@@ -24,6 +24,7 @@ const RSVP = () => {
   const [existingRsvp, setExistingRsvp] = useState<any>(null);
   const [attending, setAttending] = useState(true);
   const [includingTrek, setIncludingTrek] = useState(false);
+  const [visaNeeded, setVisaNeeded] = useState(false);
   const [dietaryRequirements, setDietaryRequirements] = useState("");
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const navigate = useNavigate();
@@ -64,6 +65,7 @@ const RSVP = () => {
         setExistingRsvp(rsvp);
         setAttending(rsvp.attending);
         setIncludingTrek(rsvp.including_trek || false);
+        setVisaNeeded(rsvp.visa_needed || false);
         setDietaryRequirements(rsvp.dietary_requirements || "");
       }
 
@@ -108,6 +110,7 @@ const RSVP = () => {
         guest_id: guestId,
         attending,
         including_trek: includingTrek,
+        visa_needed: visaNeeded,
         plus_one: familyMembers.length > 0,
         dietary_requirements: dietaryRequirements || null,
       };
@@ -239,6 +242,23 @@ const RSVP = () => {
                     id="trek"
                     checked={includingTrek}
                     onCheckedChange={setIncludingTrek}
+                  />
+                </div>
+
+                {/* Visa Option */}
+                <div className="flex items-center justify-between p-4 bg-accent/10 rounded-lg border border-accent/30">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="visa" className="text-base font-semibold">
+                      Will you need a visa to visit Pakistan?
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      We will prepare an invitation letter for you
+                    </p>
+                  </div>
+                  <Switch
+                    id="visa"
+                    checked={visaNeeded}
+                    onCheckedChange={setVisaNeeded}
                   />
                 </div>
 
