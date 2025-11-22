@@ -35,9 +35,19 @@ const AdminSlides = () => {
   const [travelInfo, setTravelInfo] = useState<TravelInfo[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [editingSlide, setEditingSlide] = useState<Slide | null>(null);
+  const [creatingSlide, setCreatingSlide] = useState(false);
+  const [newSlide, setNewSlide] = useState<Partial<Slide>>({
+    page_number: 1,
+    title: '',
+    subtitle: '',
+    description: '',
+    icon_emoji: '💍',
+    background_image: null,
+  });
   const [editingTravel, setEditingTravel] = useState<TravelInfo | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const newSlideFileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -251,6 +261,80 @@ const AdminSlides = () => {
     fetchTravelInfo();
   };
 
+  const handleNewSlideFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || !event.target.files[0]) return;
+    
+    const file = event.target.files[0];
+    setUploading(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${newSlide.page_number}-${Date.now()}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError } = await supabase.storage
+        .from('slide-backgrounds')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('slide-backgrounds')
+        .getPublicUrl(filePath);
+
+      setNewSlide({
+        ...newSlide,
+        background_image: publicUrl
+      });
+
+      toast.success("Image uploaded successfully!");
+    } catch (error: any) {
+      toast.error("Failed to upload image");
+      console.error(error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleCreateSlide = async () => {
+    if (!newSlide.page_number || !newSlide.title) {
+      toast.error("Page number and title are required");
+      return;
+    }
+
+    const { error } = await supabase
+      .from('wedding_slides')
+      .insert([{
+        page_number: newSlide.page_number,
+        title: newSlide.title,
+        subtitle: newSlide.subtitle || '',
+        description: newSlide.description || '',
+        icon_emoji: newSlide.icon_emoji || '💍',
+        background_image: newSlide.background_image,
+      }]);
+
+    if (error) {
+      toast.error("Failed to create slide");
+      console.error(error);
+      return;
+    }
+
+    toast.success("Slide created successfully!");
+    fetchSlides();
+    setCreatingSlide(false);
+    setNewSlide({
+      page_number: 1,
+      title: '',
+      subtitle: '',
+      description: '',
+      icon_emoji: '💍',
+      background_image: null,
+    });
+  };
+
   if (!isAdmin) {
     return null;
   }
@@ -269,9 +353,18 @@ const AdminSlides = () => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Admin
           </Button>
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-watercolor-magenta" />
-            <h1 className="text-3xl font-display font-bold text-watercolor-magenta">Edit Wedding Slides</h1>
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={() => setCreatingSlide(true)}
+              className="bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Create New Slide
+            </Button>
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-watercolor-magenta" />
+              <h1 className="text-3xl font-display font-bold text-watercolor-magenta">Edit Wedding Slides</h1>
+            </div>
           </div>
         </div>
 
@@ -585,6 +678,165 @@ const AdminSlides = () => {
                   <Button
                     variant="outline"
                     onClick={() => setEditingTravel(null)}
+                    className="border-2 border-watercolor-purple/20 font-display"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {creatingSlide && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <Card className="w-full max-w-2xl bg-white/98 max-h-[90vh] overflow-y-auto">
+              <CardHeader className="border-b-2 border-watercolor-purple/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-2xl font-display text-watercolor-magenta flex items-center gap-2">
+                      <Heart className="w-6 h-6" />
+                      Create New Slide
+                    </CardTitle>
+                    <CardDescription>Add a new event slide to the wedding site</CardDescription>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setCreatingSlide(false)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    ✕
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-6">
+                <div className="space-y-2">
+                  <Label htmlFor="new-page-number" className="font-display text-watercolor-purple">Page Number *</Label>
+                  <Input
+                    id="new-page-number"
+                    type="number"
+                    min="1"
+                    value={newSlide.page_number}
+                    onChange={(e) => setNewSlide({...newSlide, page_number: parseInt(e.target.value)})}
+                    className="border-2 border-watercolor-purple/20"
+                  />
+                  <p className="text-xs text-muted-foreground">Page 1 is Welcome, 2 is Dholki, etc.</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="new-icon" className="font-display text-watercolor-purple">Icon Emoji</Label>
+                  <Input
+                    id="new-icon"
+                    value={newSlide.icon_emoji}
+                    onChange={(e) => setNewSlide({...newSlide, icon_emoji: e.target.value})}
+                    placeholder="💍"
+                    className="text-4xl h-16 text-center border-2 border-watercolor-purple/20"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="new-title" className="font-display text-watercolor-purple">Title *</Label>
+                  <Input
+                    id="new-title"
+                    value={newSlide.title}
+                    onChange={(e) => setNewSlide({...newSlide, title: e.target.value})}
+                    placeholder="Dholki Night"
+                    className="font-display border-2 border-watercolor-purple/20"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="new-subtitle" className="font-display text-watercolor-purple">Subtitle</Label>
+                  <Input
+                    id="new-subtitle"
+                    value={newSlide.subtitle}
+                    onChange={(e) => setNewSlide({...newSlide, subtitle: e.target.value})}
+                    placeholder="March 25, 2025"
+                    className="font-urdu border-2 border-watercolor-purple/20"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="new-description" className="font-display text-watercolor-purple">Description</Label>
+                  <Textarea
+                    id="new-description"
+                    value={newSlide.description}
+                    onChange={(e) => setNewSlide({...newSlide, description: e.target.value})}
+                    rows={4}
+                    placeholder="Begin our celebration with a traditional Dholki evening..."
+                    className="border-2 border-watercolor-purple/20"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="font-display text-watercolor-purple flex items-center gap-2">
+                    <Image className="w-4 h-4" />
+                    Background Media (Image or Video)
+                  </Label>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      onClick={() => newSlideFileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="bg-gradient-to-r from-watercolor-purple to-watercolor-magenta hover:from-watercolor-magenta hover:to-watercolor-purple text-white"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {uploading ? "Uploading..." : "Upload Image/Video"}
+                    </Button>
+                    
+                    <Input
+                      ref={newSlideFileInputRef}
+                      type="file"
+                      accept="image/*,video/*"
+                      onChange={handleNewSlideFileUpload}
+                      className="hidden"
+                    />
+                  </div>
+
+                  <div className="text-xs text-muted-foreground">
+                    Supports: Images (JPG, PNG, WEBP) and Videos (MP4, WEBM)
+                    <br />
+                    Or paste a media URL below:
+                  </div>
+                  
+                  <Input
+                    value={newSlide.background_image || ''}
+                    onChange={(e) => setNewSlide({...newSlide, background_image: e.target.value})}
+                    placeholder="https://example.com/media.mp4"
+                    className="border-2 border-watercolor-purple/20"
+                  />
+                  
+                  {newSlide.background_image && (
+                    <div className="mt-2 rounded-lg overflow-hidden h-48 border-2 border-watercolor-purple/20">
+                      {newSlide.background_image.match(/\.(mp4|webm|ogg)$/i) ? (
+                        <video 
+                          src={newSlide.background_image} 
+                          className="w-full h-full object-cover"
+                          controls
+                          muted
+                        />
+                      ) : (
+                        <img 
+                          src={newSlide.background_image} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={handleCreateSlide}
+                    className="flex-1 bg-gradient-to-r from-watercolor-magenta to-watercolor-purple hover:from-watercolor-purple hover:to-watercolor-magenta text-white font-display"
+                  >
+                    Create Slide
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCreatingSlide(false)}
                     className="border-2 border-watercolor-purple/20 font-display"
                   >
                     Cancel
