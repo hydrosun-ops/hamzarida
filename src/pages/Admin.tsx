@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Users, ArrowLeft, Sparkles, Download, Edit, Upload } from "lucide-react";
+import { Users, ArrowLeft, Sparkles, Download, Edit, Upload, KeyRound } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { WatercolorBackground } from "@/components/WatercolorBackground";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -226,6 +226,26 @@ const Admin = () => {
       reception: true,
       trek: true,
     });
+  };
+
+  const handleResetPassword = async (guest: Guest) => {
+    if (!confirm(`Reset password for ${guest.name}? They will need to create a new password on their next login.`)) {
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('reset-guest-password', {
+        body: { guestId: guest.id }
+      });
+
+      if (error) throw error;
+
+      toast.success(`Password reset for ${guest.name}. They can now set a new password on next login.`);
+      fetchGuests(); // Refresh the list
+    } catch (error: any) {
+      console.error('Error resetting password:', error);
+      toast.error(error.message || "Failed to reset password");
+    }
   };
 
   const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -801,14 +821,26 @@ const Admin = () => {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditGuest(guest)}
-                            className="hover:bg-watercolor-purple/10"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditGuest(guest)}
+                              className="hover:bg-watercolor-purple/10"
+                              title="Edit guest"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleResetPassword(guest)}
+                              className="hover:bg-watercolor-orange/10 text-watercolor-orange"
+                              title="Reset password"
+                            >
+                              <KeyRound className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
