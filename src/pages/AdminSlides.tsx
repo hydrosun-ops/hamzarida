@@ -18,6 +18,9 @@ interface Slide {
   description: string;
   icon_emoji: string;
   background_image: string | null;
+  event_date: string | null;
+  event_time: string | null;
+  event_venue: string | null;
 }
 
 interface TravelInfo {
@@ -43,6 +46,9 @@ const AdminSlides = () => {
     description: '',
     icon_emoji: '💍',
     background_image: null,
+    event_date: null,
+    event_time: null,
+    event_venue: null,
   });
   const [editingTravel, setEditingTravel] = useState<TravelInfo | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -198,6 +204,9 @@ const AdminSlides = () => {
         description: editingSlide.description,
         icon_emoji: editingSlide.icon_emoji,
         background_image: editingSlide.background_image,
+        event_date: editingSlide.event_date,
+        event_time: editingSlide.event_time,
+        event_venue: editingSlide.event_venue,
       })
       .eq('id', editingSlide.id);
 
@@ -333,6 +342,9 @@ const AdminSlides = () => {
         description: newSlide.description || '',
         icon_emoji: newSlide.icon_emoji || '💍',
         background_image: newSlide.background_image,
+        event_date: newSlide.event_date,
+        event_time: newSlide.event_time,
+        event_venue: newSlide.event_venue,
       }]);
 
     if (error) {
@@ -348,6 +360,9 @@ const AdminSlides = () => {
       page_number: 1,
       title: '',
       subtitle: '',
+      event_date: null,
+      event_time: null,
+      event_venue: null,
       description: '',
       icon_emoji: '💍',
       background_image: null,
@@ -618,6 +633,41 @@ const AdminSlides = () => {
                   />
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="event-date" className="font-display text-watercolor-purple">Event Date</Label>
+                    <Input
+                      id="event-date"
+                      value={editingSlide.event_date || ''}
+                      onChange={(e) => setEditingSlide({...editingSlide, event_date: e.target.value})}
+                      placeholder="March 25, 2025"
+                      className="border-2 border-watercolor-purple/20"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="event-time" className="font-display text-watercolor-purple">Event Time</Label>
+                    <Input
+                      id="event-time"
+                      value={editingSlide.event_time || ''}
+                      onChange={(e) => setEditingSlide({...editingSlide, event_time: e.target.value})}
+                      placeholder="7:00 PM onwards"
+                      className="border-2 border-watercolor-purple/20"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="event-venue" className="font-display text-watercolor-purple">Event Venue</Label>
+                    <Input
+                      id="event-venue"
+                      value={editingSlide.event_venue || ''}
+                      onChange={(e) => setEditingSlide({...editingSlide, event_venue: e.target.value})}
+                      placeholder="Venue Name, Pakistan"
+                      className="border-2 border-watercolor-purple/20"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label className="font-display text-watercolor-purple flex items-center gap-2">
                     <Image className="w-4 h-4" />
@@ -860,6 +910,41 @@ const AdminSlides = () => {
                     placeholder="Begin our celebration with a traditional Dholki evening..."
                     className="border-2 border-watercolor-purple/20"
                   />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-event-date" className="font-display text-watercolor-purple">Event Date</Label>
+                    <Input
+                      id="new-event-date"
+                      value={newSlide.event_date || ''}
+                      onChange={(e) => setNewSlide({...newSlide, event_date: e.target.value})}
+                      placeholder="March 25, 2025"
+                      className="border-2 border-watercolor-purple/20"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="new-event-time" className="font-display text-watercolor-purple">Event Time</Label>
+                    <Input
+                      id="new-event-time"
+                      value={newSlide.event_time || ''}
+                      onChange={(e) => setNewSlide({...newSlide, event_time: e.target.value})}
+                      placeholder="7:00 PM onwards"
+                      className="border-2 border-watercolor-purple/20"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="new-event-venue" className="font-display text-watercolor-purple">Event Venue</Label>
+                    <Input
+                      id="new-event-venue"
+                      value={newSlide.event_venue || ''}
+                      onChange={(e) => setNewSlide({...newSlide, event_venue: e.target.value})}
+                      placeholder="Venue Name, Pakistan"
+                      className="border-2 border-watercolor-purple/20"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
