@@ -13,8 +13,15 @@ export const WatercolorBackground = () => {
         .eq('setting_key', 'watercolor_background')
         .maybeSingle();
 
-      if (data?.setting_value) {
-        setBackgroundUrl(data.setting_value);
+      // Only use database value if it's a valid public URL (not a src/ path)
+      if (data?.setting_value && 
+          (data.setting_value.startsWith('http') || 
+           data.setting_value.startsWith('https') || 
+           data.setting_value.startsWith('/'))) {
+        // Skip src/ paths as they need to be imported
+        if (!data.setting_value.includes('/src/')) {
+          setBackgroundUrl(data.setting_value);
+        }
       }
     };
 
