@@ -14,6 +14,8 @@ const Auth = () => {
   const [phone, setPhone] = useState("");
   const [formattedPhone, setFormattedPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isNewUser, setIsNewUser] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -44,6 +46,18 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Password validation
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters long");
+      return;
+    }
+
+    if (isNewUser && password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -85,6 +99,7 @@ const Auth = () => {
       
       // Check if user account already exists
       if (guest.user_id) {
+        setIsNewUser(false);
         // User has an account, just sign in
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: guestEmail,
@@ -103,6 +118,7 @@ const Auth = () => {
 
         toast.success(`Welcome back, ${guest.name}!`);
       } else {
+        setIsNewUser(true);
         // First time user, create account
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email: guestEmail,
@@ -126,12 +142,34 @@ const Auth = () => {
           return;
         }
 
-        // Link guest to auth user
+        // Link guest to auth user and create user role
         if (authData.user) {
-          await supabase
+          // Update guest with user_id
+          const { error: guestUpdateError } = await supabase
             .from('guests')
             .update({ user_id: authData.user.id })
             .eq('id', guest.id);
+
+          if (guestUpdateError) {
+            console.error("Failed to link guest to user:", guestUpdateError);
+            toast.error("Account created but failed to link to guest profile. Please contact support.");
+            setLoading(false);
+            return;
+          }
+
+          // Create user role entry
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .insert({
+              guest_id: guest.id,
+              user_id: authData.user.id,
+              role: 'user'
+            });
+
+          if (roleError) {
+            console.error("Failed to create user role:", roleError);
+            // Don't block login for role creation failure, but log it
+          }
         }
 
         toast.success(`Welcome, ${guest.name}!`);
@@ -186,16 +224,47 @@ const Auth = () => {
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder="Enter your password (min 8 characters)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={8}
                 className="text-base h-12 border-2 focus:border-primary"
               />
-              <p className="text-xs text-muted-foreground">
-                First time? Your password will be created automatically
-              </p>
+              {password && password.length < 8 && (
+                <p className="text-xs text-destructive">
+                  Password must be at least 8 characters
+                </p>
+              )}
+              {!isNewUser && (
+                <p className="text-xs text-muted-foreground">
+                  Enter your existing password to sign in
+                </p>
+              )}
             </div>
+            {isNewUser && (
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-base font-medium">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Re-enter your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  className="text-base h-12 border-2 focus:border-primary"
+                />
+                {confirmPassword && password !== confirmPassword && (
+                  <p className="text-xs text-destructive">
+                    Passwords do not match
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  First time? Create a secure password
+                </p>
+              </div>
+            )}
             <Button 
               type="submit" 
               className="w-full h-12 text-base font-semibold"
