@@ -272,6 +272,15 @@ const Auth = () => {
             >
               {loading ? "Signing in..." : "Sign In"}
             </Button>
+            
+            <div className="mt-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                Forgot your password?{" "}
+                <span className="font-medium text-primary">
+                  Please contact the hosts for assistance
+                </span>
+              </p>
+            </div>
           </form>
         </CardContent>
       </Card>
