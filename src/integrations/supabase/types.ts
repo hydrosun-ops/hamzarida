@@ -249,6 +249,9 @@ export type Database = {
           background_image: string | null
           created_at: string
           description: string | null
+          event_date: string | null
+          event_time: string | null
+          event_venue: string | null
           icon_emoji: string | null
           id: string
           page_number: number
@@ -260,6 +263,9 @@ export type Database = {
           background_image?: string | null
           created_at?: string
           description?: string | null
+          event_date?: string | null
+          event_time?: string | null
+          event_venue?: string | null
           icon_emoji?: string | null
           id?: string
           page_number: number
@@ -271,6 +277,9 @@ export type Database = {
           background_image?: string | null
           created_at?: string
           description?: string | null
+          event_date?: string | null
+          event_time?: string | null
+          event_venue?: string | null
           icon_emoji?: string | null
           id?: string
           page_number?: number
