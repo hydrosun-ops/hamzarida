@@ -221,18 +221,21 @@ export type Database = {
           guest_id: string
           id: string
           role: Database["public"]["Enums"]["app_role"]
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
           guest_id: string
           id?: string
           role: Database["public"]["Enums"]["app_role"]
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
           guest_id?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string | null
         }
         Relationships: [
           {
