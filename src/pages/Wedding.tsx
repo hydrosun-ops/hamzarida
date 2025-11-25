@@ -38,26 +38,20 @@ const Wedding = () => {
   ].filter(Boolean).length;
   const totalPages = visiblePageCount;
   useEffect(() => {
-    // Check if user is authenticated via Supabase
-    const checkAuth = async () => {
+    // Fetch guest data without redirecting - let Index.tsx handle auth routing
+    const fetchGuestData = async () => {
       const {
         data: {
           session
         }
       } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/auth');
-        return;
-      }
+      if (!session) return;
 
       // Fetch guest data
       const {
         data: guest
       } = await supabase.from('guests').select('id, name').eq('user_id', session.user.id).maybeSingle();
-      if (!guest) {
-        navigate('/auth');
-        return;
-      }
+      if (!guest) return;
       setGuestName(guest.name);
 
       // Check if user is admin
@@ -98,8 +92,8 @@ const Wedding = () => {
         setSlideData(data);
       }
     };
-    checkAuth();
-  }, [navigate]);
+    fetchGuestData();
+  }, []);
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/auth');
