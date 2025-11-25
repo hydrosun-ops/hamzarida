@@ -101,7 +101,6 @@ const Auth = () => {
       
       // Check if user account already exists
       if (guest.user_id) {
-        setIsNewUser(false);
         // User has an account, just sign in
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: guestEmail,
@@ -120,8 +119,7 @@ const Auth = () => {
 
         toast.success(`Welcome back, ${guest.name}!`);
       } else {
-        setIsNewUser(true);
-        // First time user, create account
+        // First time user, try to create account
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email: guestEmail,
           password: password,
@@ -135,13 +133,51 @@ const Auth = () => {
         });
 
         if (signUpError) {
+          // If account already exists but wasn't linked, sign in and link it
           if (signUpError.message.includes('User already registered')) {
-            toast.error("Account already exists. Please sign in with your password.");
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+              email: guestEmail,
+              password: password,
+            });
+
+            if (signInError) {
+              toast.error("Account exists but password is incorrect. Please try again or contact the hosts.");
+              setLoading(false);
+              return;
+            }
+
+            // Link the authenticated user to the guest
+            if (signInData.user) {
+              const { error: guestUpdateError } = await supabase
+                .from('guests')
+                .update({ user_id: signInData.user.id })
+                .eq('id', guest.id);
+
+              if (guestUpdateError) {
+                console.error("Failed to link guest to user:", guestUpdateError);
+              }
+
+              // Create user role entry
+              const { error: roleError } = await supabase
+                .from('user_roles')
+                .insert({
+                  guest_id: guest.id,
+                  user_id: signInData.user.id,
+                  role: 'user'
+                });
+
+              if (roleError && !roleError.message.includes('duplicate')) {
+                console.error("Failed to create user role:", roleError);
+              }
+            }
+
+            toast.success(`Welcome back, ${guest.name}!`);
+            navigate("/wedding");
+            setLoading(false);
+            return;
           } else {
             throw signUpError;
           }
-          setLoading(false);
-          return;
         }
 
         // Link guest to auth user and create user role
