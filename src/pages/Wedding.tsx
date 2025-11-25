@@ -15,7 +15,7 @@ const Wedding = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [invitedEvents, setInvitedEvents] = useState<Set<string>>(new Set());
   const [slideBackgrounds, setSlideBackgrounds] = useState<Record<number, string>>({});
-  const [slideData, setSlideData] = useState<Record<number, { date?: string; time?: string; venue?: string }>>({});
+  const [slideData, setSlideData] = useState<Record<number, { title?: string; subtitle?: string; date?: string; time?: string; venue?: string }>>({});
   const navigate = useNavigate();
 
   // Helper to check if guest is invited to an event (show all if no invitations set for backwards compatibility)
@@ -77,15 +77,17 @@ const Wedding = () => {
       // Fetch slide backgrounds and event details
       const {
         data: slides
-      } = await supabase.from('wedding_slides').select('page_number, background_image, event_date, event_time, event_venue').order('page_number');
+      } = await supabase.from('wedding_slides').select('page_number, background_image, title, subtitle, event_date, event_time, event_venue').order('page_number');
       if (slides) {
         const backgrounds: Record<number, string> = {};
-        const data: Record<number, { date?: string; time?: string; venue?: string }> = {};
+        const data: Record<number, { title?: string; subtitle?: string; date?: string; time?: string; venue?: string }> = {};
         slides.forEach(slide => {
           if (slide.background_image) {
             backgrounds[slide.page_number] = slide.background_image;
           }
           data[slide.page_number] = {
+            title: slide.title || undefined,
+            subtitle: slide.subtitle || undefined,
             date: slide.event_date || undefined,
             time: slide.event_time || undefined,
             venue: slide.event_venue || undefined
@@ -175,11 +177,11 @@ const Wedding = () => {
           animationDelay: '0.2s'
         }}>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-purple mb-8 md:mb-12 px-4">
-              Arrival Day
+              {slideData[2]?.title || "Arrival Day"}
             </h2>
             <EventCard 
               date={slideData[2]?.date || "March 25, 2025"} 
-              title="Dholki Night" 
+              title={slideData[2]?.subtitle || "Dholki Night"} 
               venue={slideData[2]?.venue || "Traditional Venue, Pakistan"} 
               time={slideData[2]?.time || "Evening - 7:00 PM onwards"} 
               description="Begin our celebration with a traditional Dholki evening filled with music, dance, and joy. This intimate gathering will set the perfect tone for the festivities ahead." 
@@ -193,11 +195,11 @@ const Wedding = () => {
           animationDelay: '0.3s'
         }}>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-magenta mb-8 md:mb-12 px-4">
-              The Main Event
+              {slideData[3]?.title || "The Main Event"}
             </h2>
             <EventCard 
               date={slideData[3]?.date || "March 26, 2025"} 
-              title="Barat Ceremony" 
+              title={slideData[3]?.subtitle || "Barat Ceremony"} 
               venue={slideData[3]?.venue || "Grand Wedding Venue, Pakistan"} 
               time={slideData[3]?.time || "Evening - 6:00 PM"} 
               description="The main wedding ceremony where families unite. Witness the beautiful traditions, vibrant colors, and heartfelt moments as we begin our journey together." 
@@ -210,9 +212,12 @@ const Wedding = () => {
           <div className="space-y-6 md:space-y-8 animate-fade-in" style={{
           animationDelay: '0.4s'
         }}>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-orange mb-8 md:mb-12 px-4">
+              {slideData[4]?.title || "Warehouse DJ Party"}
+            </h2>
             <EventCard 
               date={slideData[4]?.date || "March 27, 2025"} 
-              title="Warehouse DJ Party" 
+              title={slideData[4]?.subtitle || "DJ WILDHORSE IN DA HAUS"} 
               venue={slideData[4]?.venue || "Warehouse Venue"} 
               time={slideData[4]?.time || "Evening - 9:00 PM"} 
               description="Dance the night away at our modern celebration. A perfect blend of traditional and contemporary music to keep the energy high!" 
@@ -226,11 +231,11 @@ const Wedding = () => {
           animationDelay: '0.5s'
         }}>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-gold mb-8 md:mb-12 px-4">
-              Grand Finale
+              {slideData[5]?.title || "Grand Finale"}
             </h2>
             <EventCard 
               date={slideData[5]?.date || "March 28, 2025"} 
-              title="Formal Reception" 
+              title={slideData[5]?.subtitle || "Formal Reception"} 
               venue={slideData[5]?.venue || "Luxury Banquet Hall, Pakistan"} 
               time={slideData[5]?.time || "Evening - 7:00 PM"} 
               description="Join us for an elegant evening of dinner, speeches, and celebration. Dress in your finest as we conclude our wedding festivities in style." 
@@ -245,11 +250,11 @@ const Wedding = () => {
         }}>
             <Mountain className="w-12 h-12 md:w-16 md:h-16 mx-auto text-watercolor-purple opacity-80" />
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-purple mb-6 md:mb-8 px-4">
-              Adventure Awaits
+              {slideData[6]?.title || "Adventure Awaits"}
             </h2>
             <EventCard 
               date={slideData[6]?.date || "March 29 - April 5, 2025"} 
-              title="Week-Long Pakistan Trek" 
+              title={slideData[6]?.subtitle || "Week-Long Pakistan Trek"} 
               venue={slideData[6]?.venue || "Northern Pakistan"} 
               time={slideData[6]?.time || "7 Days of Adventure"} 
               description="Let's make the most of you being in Pakistan. We are organising a 1 week travel across the country. Spaces limited." 
