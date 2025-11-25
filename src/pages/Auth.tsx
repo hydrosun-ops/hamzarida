@@ -118,6 +118,7 @@ const Auth = () => {
         }
 
         toast.success(`Welcome back, ${guest.name}!`);
+        // Navigation handled by onAuthStateChange listener
       } else {
         // First time user, try to create account
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
@@ -172,7 +173,7 @@ const Auth = () => {
             }
 
             toast.success(`Welcome back, ${guest.name}!`);
-            navigate("/wedding");
+            // Navigation handled by onAuthStateChange listener
             setLoading(false);
             return;
           } else {
@@ -213,7 +214,7 @@ const Auth = () => {
         toast.success(`Welcome, ${guest.name}!`);
       }
 
-      navigate("/wedding");
+      // Navigation handled by onAuthStateChange listener
     } catch (error: any) {
       toast.error("Login failed: " + error.message);
       console.error(error);
