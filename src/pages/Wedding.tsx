@@ -15,7 +15,7 @@ const Wedding = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [invitedEvents, setInvitedEvents] = useState<Set<string>>(new Set());
   const [slideBackgrounds, setSlideBackgrounds] = useState<Record<number, string>>({});
-  const [slideData, setSlideData] = useState<Record<number, { title?: string; subtitle?: string; date?: string; time?: string; venue?: string }>>({});
+  const [slideData, setSlideData] = useState<Record<number, { title?: string; subtitle?: string; description?: string; date?: string; time?: string; venue?: string }>>({});
   const navigate = useNavigate();
 
   // Helper to check if guest is invited to an event (show all if no invitations set for backwards compatibility)
@@ -77,10 +77,10 @@ const Wedding = () => {
       // Fetch slide backgrounds and event details
       const {
         data: slides
-      } = await supabase.from('wedding_slides').select('page_number, background_image, title, subtitle, event_date, event_time, event_venue').order('page_number');
+      } = await supabase.from('wedding_slides').select('page_number, background_image, title, subtitle, description, event_date, event_time, event_venue').order('page_number');
       if (slides) {
         const backgrounds: Record<number, string> = {};
-        const data: Record<number, { title?: string; subtitle?: string; date?: string; time?: string; venue?: string }> = {};
+        const data: Record<number, { title?: string; subtitle?: string; description?: string; date?: string; time?: string; venue?: string }> = {};
         slides.forEach(slide => {
           if (slide.background_image) {
             backgrounds[slide.page_number] = slide.background_image;
@@ -88,6 +88,7 @@ const Wedding = () => {
           data[slide.page_number] = {
             title: slide.title || undefined,
             subtitle: slide.subtitle || undefined,
+            description: slide.description || undefined,
             date: slide.event_date || undefined,
             time: slide.event_time || undefined,
             venue: slide.event_venue || undefined
@@ -184,7 +185,7 @@ const Wedding = () => {
               title={slideData[2]?.subtitle || "Dholki Night"} 
               venue={slideData[2]?.venue || "Traditional Venue, Pakistan"} 
               time={slideData[2]?.time || "Evening - 7:00 PM onwards"} 
-              description="Begin our celebration with a traditional Dholki evening filled with music, dance, and joy. This intimate gathering will set the perfect tone for the festivities ahead." 
+              description={slideData[2]?.description || "Begin our celebration with a traditional Dholki evening filled with music, dance, and joy. This intimate gathering will set the perfect tone for the festivities ahead."} 
             />
           </div>
         </WeddingPage>}
@@ -202,7 +203,7 @@ const Wedding = () => {
               title={slideData[3]?.subtitle || "Barat Ceremony"} 
               venue={slideData[3]?.venue || "Grand Wedding Venue, Pakistan"} 
               time={slideData[3]?.time || "Evening - 6:00 PM"} 
-              description="The main wedding ceremony where families unite. Witness the beautiful traditions, vibrant colors, and heartfelt moments as we begin our journey together." 
+              description={slideData[3]?.description || "The main wedding ceremony where families unite. Witness the beautiful traditions, vibrant colors, and heartfelt moments as we begin our journey together."} 
             />
           </div>
         </WeddingPage>}
@@ -220,7 +221,7 @@ const Wedding = () => {
               title={slideData[4]?.subtitle || "DJ WILDHORSE IN DA HAUS"} 
               venue={slideData[4]?.venue || "Warehouse Venue"} 
               time={slideData[4]?.time || "Evening - 9:00 PM"} 
-              description="Dance the night away at our modern celebration. A perfect blend of traditional and contemporary music to keep the energy high!" 
+              description={slideData[4]?.description || "Dance the night away at our modern celebration. A perfect blend of traditional and contemporary music to keep the energy high!"} 
             />
           </div>
         </WeddingPage>}
@@ -238,7 +239,7 @@ const Wedding = () => {
               title={slideData[5]?.subtitle || "Formal Reception"} 
               venue={slideData[5]?.venue || "Luxury Banquet Hall, Pakistan"} 
               time={slideData[5]?.time || "Evening - 7:00 PM"} 
-              description="Join us for an elegant evening of dinner, speeches, and celebration. Dress in your finest as we conclude our wedding festivities in style." 
+              description={slideData[5]?.description || "Join us for an elegant evening of dinner, speeches, and celebration. Dress in your finest as we conclude our wedding festivities in style."} 
             />
           </div>
         </WeddingPage>}
@@ -257,7 +258,7 @@ const Wedding = () => {
               title={slideData[6]?.subtitle || "Week-Long Pakistan Trek"} 
               venue={slideData[6]?.venue || "Northern Pakistan"} 
               time={slideData[6]?.time || "7 Days of Adventure"} 
-              description="Let's make the most of you being in Pakistan. We are organising a 1 week travel across the country. Spaces limited." 
+              description={slideData[6]?.description || "Let's make the most of you being in Pakistan. We are organising a 1 week travel across the country. Spaces limited."} 
             />
             <div className="pt-4 md:pt-6 px-4">
               <Button onClick={() => navigate('/rsvp')} size="lg" variant="secondary" className="px-6 md:px-8 py-5 md:py-6 text-base md:text-lg rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto">
