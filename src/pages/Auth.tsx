@@ -26,14 +26,8 @@ const Auth = () => {
         navigate("/wedding");
       }
     });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        navigate("/wedding");
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    // Note: No onAuthStateChange listener here to avoid navigation conflicts
+    // Index.tsx and Wedding.tsx handle routing after authentication
   }, [navigate]);
 
   const handlePhoneChange = (value: string) => {
