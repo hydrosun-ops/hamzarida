@@ -15,6 +15,7 @@ const Wedding = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [invitedEvents, setInvitedEvents] = useState<Set<string>>(new Set());
   const [slideBackgrounds, setSlideBackgrounds] = useState<Record<number, string>>({});
+  const [slideData, setSlideData] = useState<Record<number, { date?: string; time?: string; venue?: string }>>({});
   const navigate = useNavigate();
 
   // Helper to check if guest is invited to an event (show all if no invitations set for backwards compatibility)
@@ -73,18 +74,25 @@ const Wedding = () => {
         setInvitedEvents(new Set(invitations.map(inv => inv.event_type)));
       }
 
-      // Fetch slide backgrounds
+      // Fetch slide backgrounds and event details
       const {
         data: slides
-      } = await supabase.from('wedding_slides').select('page_number, background_image').order('page_number');
+      } = await supabase.from('wedding_slides').select('page_number, background_image, event_date, event_time, event_venue').order('page_number');
       if (slides) {
         const backgrounds: Record<number, string> = {};
+        const data: Record<number, { date?: string; time?: string; venue?: string }> = {};
         slides.forEach(slide => {
           if (slide.background_image) {
             backgrounds[slide.page_number] = slide.background_image;
           }
+          data[slide.page_number] = {
+            date: slide.event_date || undefined,
+            time: slide.event_time || undefined,
+            venue: slide.event_venue || undefined
+          };
         });
         setSlideBackgrounds(backgrounds);
+        setSlideData(data);
       }
     };
     checkAuth();
@@ -169,7 +177,13 @@ const Wedding = () => {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-purple mb-8 md:mb-12 px-4">
               Arrival Day
             </h2>
-            <EventCard date="March 25, 2025" title="Dholki Night" venue="Traditional Venue, Pakistan" time="Evening - 7:00 PM onwards" description="Begin our celebration with a traditional Dholki evening filled with music, dance, and joy. This intimate gathering will set the perfect tone for the festivities ahead." />
+            <EventCard 
+              date={slideData[2]?.date || "March 25, 2025"} 
+              title="Dholki Night" 
+              venue={slideData[2]?.venue || "Traditional Venue, Pakistan"} 
+              time={slideData[2]?.time || "Evening - 7:00 PM onwards"} 
+              description="Begin our celebration with a traditional Dholki evening filled with music, dance, and joy. This intimate gathering will set the perfect tone for the festivities ahead." 
+            />
           </div>
         </WeddingPage>}
 
@@ -181,7 +195,13 @@ const Wedding = () => {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-magenta mb-8 md:mb-12 px-4">
               The Main Event
             </h2>
-            <EventCard date="March 26, 2025" title="Barat Ceremony" venue="Grand Wedding Venue, Pakistan" time="Evening - 6:00 PM" description="The main wedding ceremony where families unite. Witness the beautiful traditions, vibrant colors, and heartfelt moments as we begin our journey together." />
+            <EventCard 
+              date={slideData[3]?.date || "March 26, 2025"} 
+              title="Barat Ceremony" 
+              venue={slideData[3]?.venue || "Grand Wedding Venue, Pakistan"} 
+              time={slideData[3]?.time || "Evening - 6:00 PM"} 
+              description="The main wedding ceremony where families unite. Witness the beautiful traditions, vibrant colors, and heartfelt moments as we begin our journey together." 
+            />
           </div>
         </WeddingPage>}
 
@@ -190,7 +210,13 @@ const Wedding = () => {
           <div className="space-y-6 md:space-y-8 animate-fade-in" style={{
           animationDelay: '0.4s'
         }}>
-            <EventCard date="March 27, 2025" title="Warehouse DJ Party" venue="Warehouse Venue" time="Evening - 9:00 PM" description="Dance the night away at our modern celebration. A perfect blend of traditional and contemporary music to keep the energy high!" />
+            <EventCard 
+              date={slideData[4]?.date || "March 27, 2025"} 
+              title="Warehouse DJ Party" 
+              venue={slideData[4]?.venue || "Warehouse Venue"} 
+              time={slideData[4]?.time || "Evening - 9:00 PM"} 
+              description="Dance the night away at our modern celebration. A perfect blend of traditional and contemporary music to keep the energy high!" 
+            />
           </div>
         </WeddingPage>}
 
@@ -202,7 +228,13 @@ const Wedding = () => {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-gold mb-8 md:mb-12 px-4">
               Grand Finale
             </h2>
-            <EventCard date="March 28, 2025" title="Formal Reception" venue="Luxury Banquet Hall, Pakistan" time="Evening - 7:00 PM" description="Join us for an elegant evening of dinner, speeches, and celebration. Dress in your finest as we conclude our wedding festivities in style." />
+            <EventCard 
+              date={slideData[5]?.date || "March 28, 2025"} 
+              title="Formal Reception" 
+              venue={slideData[5]?.venue || "Luxury Banquet Hall, Pakistan"} 
+              time={slideData[5]?.time || "Evening - 7:00 PM"} 
+              description="Join us for an elegant evening of dinner, speeches, and celebration. Dress in your finest as we conclude our wedding festivities in style." 
+            />
           </div>
         </WeddingPage>}
 
@@ -215,7 +247,13 @@ const Wedding = () => {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-watercolor-purple mb-6 md:mb-8 px-4">
               Adventure Awaits
             </h2>
-            <EventCard date="March 29 - April 5, 2025" title="Week-Long Pakistan Trek" venue="Northern Pakistan" time="7 Days of Adventure" description="Let's make the most of you being in Pakistan. We are organising a 1 week travel across the country. Spaces limited." />
+            <EventCard 
+              date={slideData[6]?.date || "March 29 - April 5, 2025"} 
+              title="Week-Long Pakistan Trek" 
+              venue={slideData[6]?.venue || "Northern Pakistan"} 
+              time={slideData[6]?.time || "7 Days of Adventure"} 
+              description="Let's make the most of you being in Pakistan. We are organising a 1 week travel across the country. Spaces limited." 
+            />
             <div className="pt-4 md:pt-6 px-4">
               <Button onClick={() => navigate('/rsvp')} size="lg" variant="secondary" className="px-6 md:px-8 py-5 md:py-6 text-base md:text-lg rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto">
                 Include Trek in Your RSVP
