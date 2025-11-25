@@ -83,42 +83,58 @@ const Auth = () => {
       // Sign up or sign in with email/password (using phone as identifier)
       const guestEmail = `${normalizedPhone.replace('+', '')}@wedding.guest`;
       
-      // Try to sign in first
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: guestEmail,
-        password: password,
-      });
+      // Check if user account already exists
+      if (guest.user_id) {
+        // User has an account, just sign in
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: guestEmail,
+          password: password,
+        });
 
-      if (signInError) {
-        if (signInError.message.includes('Invalid login credentials')) {
-          // Try to sign up if not exists
-          const { data: authData, error: signUpError } = await supabase.auth.signUp({
-            email: guestEmail,
-            password: password,
-            options: {
-              data: {
-                phone: normalizedPhone,
-                name: guest.name,
-              }
-            }
-          });
-
-          if (signUpError) throw signUpError;
-
-          // Link guest to auth user
-          if (authData.user) {
-            await supabase
-              .from('guests')
-              .update({ user_id: authData.user.id })
-              .eq('id', guest.id);
+        if (signInError) {
+          if (signInError.message.includes('Invalid login credentials')) {
+            toast.error("Incorrect password. Please try again.");
+          } else {
+            throw signInError;
           }
-
-          toast.success(`Welcome, ${guest.name}!`);
-        } else {
-          throw signInError;
+          setLoading(false);
+          return;
         }
-      } else {
+
         toast.success(`Welcome back, ${guest.name}!`);
+      } else {
+        // First time user, create account
+        const { data: authData, error: signUpError } = await supabase.auth.signUp({
+          email: guestEmail,
+          password: password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/wedding`,
+            data: {
+              phone: normalizedPhone,
+              name: guest.name,
+            }
+          }
+        });
+
+        if (signUpError) {
+          if (signUpError.message.includes('User already registered')) {
+            toast.error("Account already exists. Please sign in with your password.");
+          } else {
+            throw signUpError;
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Link guest to auth user
+        if (authData.user) {
+          await supabase
+            .from('guests')
+            .update({ user_id: authData.user.id })
+            .eq('id', guest.id);
+        }
+
+        toast.success(`Welcome, ${guest.name}!`);
       }
 
       navigate("/wedding");
