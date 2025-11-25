@@ -47,15 +47,17 @@ const Auth = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Password validation
-    if (password.length < 8) {
-      toast.error("Password must be at least 8 characters long");
-      return;
-    }
-
-    if (isNewUser && password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
+    // Password validation - only for new users creating accounts
+    if (isNewUser) {
+      if (password.length < 8) {
+        toast.error("Password must be at least 8 characters long");
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
     }
 
     setLoading(true);
@@ -224,14 +226,14 @@ const Auth = () => {
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password (min 8 characters)"
+                placeholder={isNewUser ? "Enter your password (min 8 characters)" : "Enter your password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={8}
+                minLength={isNewUser ? 8 : undefined}
                 className="text-base h-12 border-2 focus:border-primary"
               />
-              {password && password.length < 8 && (
+              {isNewUser && password && password.length < 8 && (
                 <p className="text-xs text-destructive">
                   Password must be at least 8 characters
                 </p>
