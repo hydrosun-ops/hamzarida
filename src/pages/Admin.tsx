@@ -263,15 +263,19 @@ const Admin = () => {
             continue;
           }
 
-          // Format phone number
+          // Format phone number to E.164 format
           let formattedPhone = phone;
           try {
-            const phoneNumber = parsePhoneNumber(phone, 'PK');
-            if (phoneNumber) {
-              formattedPhone = phoneNumber.formatInternational();
+            const phoneNumber = parsePhoneNumber(phone);
+            if (phoneNumber && phoneNumber.isValid()) {
+              formattedPhone = phoneNumber.format('E.164');
+            } else {
+              errorCount++;
+              continue;
             }
           } catch {
-            formattedPhone = formatIncompletePhoneNumber(phone);
+            errorCount++;
+            continue;
           }
 
           // Check if guest already exists
@@ -370,16 +374,21 @@ const Admin = () => {
     setLoading(true);
 
     try {
-      // Parse and format phone number
+      // Parse and normalize phone number to E.164 format (matches Auth.tsx)
       let formattedPhone = phone;
       try {
-        const phoneNumber = parsePhoneNumber(phone, 'PK'); // Default to Pakistan
-        if (phoneNumber) {
-          formattedPhone = phoneNumber.formatInternational();
+        const phoneNumber = parsePhoneNumber(phone);
+        if (phoneNumber && phoneNumber.isValid()) {
+          formattedPhone = phoneNumber.format('E.164'); // Store as +923451234567 format
+        } else {
+          toast.error("Please enter a valid international phone number");
+          setLoading(false);
+          return;
         }
       } catch {
-        // If parsing fails, use the input as-is
-        formattedPhone = formatIncompletePhoneNumber(phone);
+        toast.error("Please enter a valid international phone number");
+        setLoading(false);
+        return;
       }
 
       if (editingGuestId) {
